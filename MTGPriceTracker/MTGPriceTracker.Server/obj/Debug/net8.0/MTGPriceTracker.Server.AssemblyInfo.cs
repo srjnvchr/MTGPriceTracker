@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MTGPriceTracker.Server")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+fe1a07cd81d0ae6a5bed06a586c58f32fd20de88")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+fa2c8d557b58af9f959c9be37eefd44a7f44795d")]
 [assembly: System.Reflection.AssemblyProductAttribute("MTGPriceTracker.Server")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MTGPriceTracker.Server")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "Y+12p9cvcDeeSYGQNKrW9kVzaf5X5sa1MbirzXy2iA4=",
+  "Hash": "1QchtIjKt4WcKC1aC3odn50RpXC8oBxAiPlCgZcMMzs=",
   "Source": "MTGPriceTracker.Client",
   "BasePath": "/",
   "Mode": "Root",
@@ -71,7 +71,7 @@
       "AssetTraitValue": "native",
       "CopyToOutputDirectory": "PreserveNewest",
       "CopyToPublishDirectory": "Never",
-      "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\.nuget\\packages\\microsoft.netcore.app.runtime.mono.browser-wasm\\8.0.6\\runtimes\\browser-wasm\\native\\dotnet.js"
+      "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\.nuget\\packages\\microsoft.netcore.app.runtime.mono.browser-wasm\\8.0.7\\runtimes\\browser-wasm\\native\\dotnet.js"
     },
     {
       "Identity": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\dotnet.js.map",
@@ -90,15 +90,15 @@
       "AssetTraitValue": "",
       "CopyToOutputDirectory": "PreserveNewest",
       "CopyToPublishDirectory": "Never",
-      "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\.nuget\\packages\\microsoft.netcore.app.runtime.mono.browser-wasm\\8.0.6\\runtimes\\browser-wasm\\native\\dotnet.js.map"
+      "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\.nuget\\packages\\microsoft.netcore.app.runtime.mono.browser-wasm\\8.0.7\\runtimes\\browser-wasm\\native\\dotnet.js.map"
     },
     {
-      "Identity": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\dotnet.native.8.0.6.1i061jum8u.js",
+      "Identity": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\dotnet.native.8.0.7.4ew5k89fwj.js",
       "SourceId": "MTGPriceTracker.Client",
       "SourceType": "Computed",
       "ContentRoot": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\",
       "BasePath": "/",
-      "RelativePath": "_framework/dotnet.native.8.0.6.1i061jum8u.js",
+      "RelativePath": "_framework/dotnet.native.8.0.7.4ew5k89fwj.js",
       "AssetKind": "Build",
       "AssetMode": "All",
       "AssetRole": "Primary",
@@ -109,7 +109,7 @@
       "AssetTraitValue": "native",
       "CopyToOutputDirectory": "PreserveNewest",
       "CopyToPublishDirectory": "Never",
-      "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\.nuget\\packages\\microsoft.netcore.app.runtime.mono.browser-wasm\\8.0.6\\runtimes\\browser-wasm\\native\\dotnet.native.js"
+      "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\.nuget\\packages\\microsoft.netcore.app.runtime.mono.browser-wasm\\8.0.7\\runtimes\\browser-wasm\\native\\dotnet.native.js"
     },
     {
       "Identity": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\dotnet.native.wasm",
@@ -128,15 +128,15 @@
       "AssetTraitValue": "native",
       "CopyToOutputDirectory": "PreserveNewest",
       "CopyToPublishDirectory": "Never",
-      "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\.nuget\\packages\\microsoft.netcore.app.runtime.mono.browser-wasm\\8.0.6\\runtimes\\browser-wasm\\native\\dotnet.native.wasm"
+      "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\.nuget\\packages\\microsoft.netcore.app.runtime.mono.browser-wasm\\8.0.7\\runtimes\\browser-wasm\\native\\dotnet.native.wasm"
     },
     {
-      "Identity": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\dotnet.runtime.8.0.6.r0hhdpf1zt.js",
+      "Identity": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\dotnet.runtime.8.0.7.j6ktr82sk4.js",
       "SourceId": "MTGPriceTracker.Client",
       "SourceType": "Computed",
       "ContentRoot": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\",
       "BasePath": "/",
-      "RelativePath": "_framework/dotnet.runtime.8.0.6.r0hhdpf1zt.js",
+      "RelativePath": "_framework/dotnet.runtime.8.0.7.j6ktr82sk4.js",
       "AssetKind": "Build",
       "AssetMode": "All",
       "AssetRole": "Primary",
@@ -147,7 +147,7 @@
       "AssetTraitValue": "native",
       "CopyToOutputDirectory": "PreserveNewest",
       "CopyToPublishDirectory": "Never",
-      "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\.nuget\\packages\\microsoft.netcore.app.runtime.mono.browser-wasm\\8.0.6\\runtimes\\browser-wasm\\native\\dotnet.runtime.js"
+      "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\.nuget\\packages\\microsoft.netcore.app.runtime.mono.browser-wasm\\8.0.7\\runtimes\\browser-wasm\\native\\dotnet.runtime.js"
     },
     {
       "Identity": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\dotnet.runtime.js.map",
@@ -166,7 +166,7 @@
       "AssetTraitValue": "",
       "CopyToOutputDirectory": "PreserveNewest",
       "CopyToPublishDirectory": "Never",
-      "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\.nuget\\packages\\microsoft.netcore.app.runtime.mono.browser-wasm\\8.0.6\\runtimes\\browser-wasm\\native\\dotnet.runtime.js.map"
+      "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\.nuget\\packages\\microsoft.netcore.app.runtime.mono.browser-wasm\\8.0.7\\runtimes\\browser-wasm\\native\\dotnet.runtime.js.map"
     },
     {
       "Identity": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\icudt_CJK.dat",
@@ -185,7 +185,7 @@
       "AssetTraitValue": "native",
       "CopyToOutputDirectory": "PreserveNewest",
       "CopyToPublishDirectory": "Never",
-      "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\.nuget\\packages\\microsoft.netcore.app.runtime.mono.browser-wasm\\8.0.6\\runtimes\\browser-wasm\\native\\icudt_CJK.dat"
+      "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\.nuget\\packages\\microsoft.netcore.app.runtime.mono.browser-wasm\\8.0.7\\runtimes\\browser-wasm\\native\\icudt_CJK.dat"
     },
     {
       "Identity": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\icudt_EFIGS.dat",
@@ -204,7 +204,7 @@
       "AssetTraitValue": "native",
       "CopyToOutputDirectory": "PreserveNewest",
       "CopyToPublishDirectory": "Never",
-      "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\.nuget\\packages\\microsoft.netcore.app.runtime.mono.browser-wasm\\8.0.6\\runtimes\\browser-wasm\\native\\icudt_EFIGS.dat"
+      "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\.nuget\\packages\\microsoft.netcore.app.runtime.mono.browser-wasm\\8.0.7\\runtimes\\browser-wasm\\native\\icudt_EFIGS.dat"
     },
     {
       "Identity": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\icudt_no_CJK.dat",
@@ -223,7 +223,7 @@
       "AssetTraitValue": "native",
       "CopyToOutputDirectory": "PreserveNewest",
       "CopyToPublishDirectory": "Never",
-      "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\.nuget\\packages\\microsoft.netcore.app.runtime.mono.browser-wasm\\8.0.6\\runtimes\\browser-wasm\\native\\icudt_no_CJK.dat"
+      "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\.nuget\\packages\\microsoft.netcore.app.runtime.mono.browser-wasm\\8.0.7\\runtimes\\browser-wasm\\native\\icudt_no_CJK.dat"
     },
     {
       "Identity": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\Microsoft.AspNetCore.Authorization.wasm",
@@ -4045,6 +4045,25 @@
       "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\System.ComponentModel.TypeConverter.wasm"
     },
     {
+      "Identity": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\obj\\Debug\\net8.0\\compressed\\0kx3d2hwsk.gz",
+      "SourceId": "MTGPriceTracker.Client",
+      "SourceType": "Computed",
+      "ContentRoot": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\",
+      "BasePath": "/",
+      "RelativePath": "_framework/icudt_CJK.dat.gz",
+      "AssetKind": "Build",
+      "AssetMode": "All",
+      "AssetRole": "Alternative",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\icudt_CJK.dat",
+      "AssetTraitName": "Content-Encoding",
+      "AssetTraitValue": "gzip",
+      "CopyToOutputDirectory": "PreserveNewest",
+      "CopyToPublishDirectory": "Never",
+      "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\icudt_CJK.dat"
+    },
+    {
       "Identity": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\obj\\Debug\\net8.0\\compressed\\0ouq93ql13.gz",
       "SourceId": "MTGPriceTracker.Client",
       "SourceType": "Computed",
@@ -4081,25 +4100,6 @@
       "CopyToOutputDirectory": "PreserveNewest",
       "CopyToPublishDirectory": "Never",
       "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\System.Xml.XPath.wasm"
-    },
-    {
-      "Identity": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\obj\\Debug\\net8.0\\compressed\\0rcc5jjh6k.gz",
-      "SourceId": "MTGPriceTracker.Client",
-      "SourceType": "Computed",
-      "ContentRoot": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\",
-      "BasePath": "/",
-      "RelativePath": "_framework/dotnet.js.gz",
-      "AssetKind": "Build",
-      "AssetMode": "All",
-      "AssetRole": "Alternative",
-      "AssetMergeBehavior": "",
-      "AssetMergeSource": "",
-      "RelatedAsset": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\dotnet.js",
-      "AssetTraitName": "Content-Encoding",
-      "AssetTraitValue": "gzip",
-      "CopyToOutputDirectory": "PreserveNewest",
-      "CopyToPublishDirectory": "Never",
-      "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\dotnet.js"
     },
     {
       "Identity": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\obj\\Debug\\net8.0\\compressed\\0rinm9mk00.gz",
@@ -4159,6 +4159,25 @@
       "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\System.Globalization.Calendars.wasm"
     },
     {
+      "Identity": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\obj\\Debug\\net8.0\\compressed\\14bs71m7oo.gz",
+      "SourceId": "MTGPriceTracker.Client",
+      "SourceType": "Computed",
+      "ContentRoot": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\",
+      "BasePath": "/",
+      "RelativePath": "_framework/dotnet.runtime.js.map.gz",
+      "AssetKind": "Build",
+      "AssetMode": "All",
+      "AssetRole": "Alternative",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\dotnet.runtime.js.map",
+      "AssetTraitName": "Content-Encoding",
+      "AssetTraitValue": "gzip",
+      "CopyToOutputDirectory": "PreserveNewest",
+      "CopyToPublishDirectory": "Never",
+      "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\dotnet.runtime.js.map"
+    },
+    {
       "Identity": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\obj\\Debug\\net8.0\\compressed\\15a55iyt8h.gz",
       "SourceId": "MTGPriceTracker.Client",
       "SourceType": "Computed",
@@ -4176,25 +4195,6 @@
       "CopyToOutputDirectory": "PreserveNewest",
       "CopyToPublishDirectory": "Never",
       "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\System.Text.Encoding.Extensions.wasm"
-    },
-    {
-      "Identity": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\obj\\Debug\\net8.0\\compressed\\167g6e2ut2.gz",
-      "SourceId": "MTGPriceTracker.Client",
-      "SourceType": "Computed",
-      "ContentRoot": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\",
-      "BasePath": "/",
-      "RelativePath": "_framework/icudt_no_CJK.dat.gz",
-      "AssetKind": "Build",
-      "AssetMode": "All",
-      "AssetRole": "Alternative",
-      "AssetMergeBehavior": "",
-      "AssetMergeSource": "",
-      "RelatedAsset": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\icudt_no_CJK.dat",
-      "AssetTraitName": "Content-Encoding",
-      "AssetTraitValue": "gzip",
-      "CopyToOutputDirectory": "PreserveNewest",
-      "CopyToPublishDirectory": "Never",
-      "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\icudt_no_CJK.dat"
     },
     {
       "Identity": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\obj\\Debug\\net8.0\\compressed\\1ac6sknzos.gz",
@@ -4233,25 +4233,6 @@
       "CopyToOutputDirectory": "PreserveNewest",
       "CopyToPublishDirectory": "Never",
       "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\System.Transactions.wasm"
-    },
-    {
-      "Identity": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\obj\\Debug\\net8.0\\compressed\\1i061jum8u.gz",
-      "SourceId": "MTGPriceTracker.Client",
-      "SourceType": "Computed",
-      "ContentRoot": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\",
-      "BasePath": "/",
-      "RelativePath": "_framework/dotnet.native.8.0.6.1i061jum8u.js.gz",
-      "AssetKind": "Build",
-      "AssetMode": "All",
-      "AssetRole": "Alternative",
-      "AssetMergeBehavior": "",
-      "AssetMergeSource": "",
-      "RelatedAsset": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\dotnet.native.8.0.6.1i061jum8u.js",
-      "AssetTraitName": "Content-Encoding",
-      "AssetTraitValue": "gzip",
-      "CopyToOutputDirectory": "PreserveNewest",
-      "CopyToPublishDirectory": "Never",
-      "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\dotnet.native.8.0.6.1i061jum8u.js"
     },
     {
       "Identity": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\obj\\Debug\\net8.0\\compressed\\1kkaog2xxx.gz",
@@ -4539,25 +4520,6 @@
       "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\System.Security.Cryptography.OpenSsl.wasm"
     },
     {
-      "Identity": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\obj\\Debug\\net8.0\\compressed\\3s9bo3fgtt.gz",
-      "SourceId": "MTGPriceTracker.Client",
-      "SourceType": "Computed",
-      "ContentRoot": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\",
-      "BasePath": "/",
-      "RelativePath": "_framework/icudt_EFIGS.dat.gz",
-      "AssetKind": "Build",
-      "AssetMode": "All",
-      "AssetRole": "Alternative",
-      "AssetMergeBehavior": "",
-      "AssetMergeSource": "",
-      "RelatedAsset": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\icudt_EFIGS.dat",
-      "AssetTraitName": "Content-Encoding",
-      "AssetTraitValue": "gzip",
-      "CopyToOutputDirectory": "PreserveNewest",
-      "CopyToPublishDirectory": "Never",
-      "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\icudt_EFIGS.dat"
-    },
-    {
       "Identity": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\obj\\Debug\\net8.0\\compressed\\3wruu0r148.gz",
       "SourceId": "MTGPriceTracker.Client",
       "SourceType": "Computed",
@@ -4632,6 +4594,25 @@
       "CopyToOutputDirectory": "PreserveNewest",
       "CopyToPublishDirectory": "Never",
       "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\System.Reflection.Emit.Lightweight.wasm"
+    },
+    {
+      "Identity": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\obj\\Debug\\net8.0\\compressed\\4ew5k89fwj.gz",
+      "SourceId": "MTGPriceTracker.Client",
+      "SourceType": "Computed",
+      "ContentRoot": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\",
+      "BasePath": "/",
+      "RelativePath": "_framework/dotnet.native.8.0.7.4ew5k89fwj.js.gz",
+      "AssetKind": "Build",
+      "AssetMode": "All",
+      "AssetRole": "Alternative",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\dotnet.native.8.0.7.4ew5k89fwj.js",
+      "AssetTraitName": "Content-Encoding",
+      "AssetTraitValue": "gzip",
+      "CopyToOutputDirectory": "PreserveNewest",
+      "CopyToPublishDirectory": "Never",
+      "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\dotnet.native.8.0.7.4ew5k89fwj.js"
     },
     {
       "Identity": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\obj\\Debug\\net8.0\\compressed\\4hcvp2puiq.gz",
@@ -4767,6 +4748,25 @@
       "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\MTGPriceTracker.Client.wasm"
     },
     {
+      "Identity": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\obj\\Debug\\net8.0\\compressed\\5jy1nmrg09.gz",
+      "SourceId": "MTGPriceTracker.Client",
+      "SourceType": "Computed",
+      "ContentRoot": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\",
+      "BasePath": "/",
+      "RelativePath": "_framework/icudt_EFIGS.dat.gz",
+      "AssetKind": "Build",
+      "AssetMode": "All",
+      "AssetRole": "Alternative",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\icudt_EFIGS.dat",
+      "AssetTraitName": "Content-Encoding",
+      "AssetTraitValue": "gzip",
+      "CopyToOutputDirectory": "PreserveNewest",
+      "CopyToPublishDirectory": "Never",
+      "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\icudt_EFIGS.dat"
+    },
+    {
       "Identity": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\obj\\Debug\\net8.0\\compressed\\5l8eq8mhpg.gz",
       "SourceId": "MTGPriceTracker.Client",
       "SourceType": "Computed",
@@ -4803,25 +4803,6 @@
       "CopyToOutputDirectory": "PreserveNewest",
       "CopyToPublishDirectory": "Never",
       "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\System.Console.wasm"
-    },
-    {
-      "Identity": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\obj\\Debug\\net8.0\\compressed\\5ywwxdgv84.gz",
-      "SourceId": "MTGPriceTracker.Client",
-      "SourceType": "Computed",
-      "ContentRoot": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\",
-      "BasePath": "/",
-      "RelativePath": "_framework/dotnet.runtime.js.map.gz",
-      "AssetKind": "Build",
-      "AssetMode": "All",
-      "AssetRole": "Alternative",
-      "AssetMergeBehavior": "",
-      "AssetMergeSource": "",
-      "RelatedAsset": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\dotnet.runtime.js.map",
-      "AssetTraitName": "Content-Encoding",
-      "AssetTraitValue": "gzip",
-      "CopyToOutputDirectory": "PreserveNewest",
-      "CopyToPublishDirectory": "Never",
-      "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\dotnet.runtime.js.map"
     },
     {
       "Identity": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\obj\\Debug\\net8.0\\compressed\\646dnfqfh5.gz",
@@ -5033,6 +5014,25 @@
       "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\mscorlib.wasm"
     },
     {
+      "Identity": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\obj\\Debug\\net8.0\\compressed\\75132f7fvv.gz",
+      "SourceId": "MTGPriceTracker.Client",
+      "SourceType": "Computed",
+      "ContentRoot": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\",
+      "BasePath": "/",
+      "RelativePath": "_framework/dotnet.js.gz",
+      "AssetKind": "Build",
+      "AssetMode": "All",
+      "AssetRole": "Alternative",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\dotnet.js",
+      "AssetTraitName": "Content-Encoding",
+      "AssetTraitValue": "gzip",
+      "CopyToOutputDirectory": "PreserveNewest",
+      "CopyToPublishDirectory": "Never",
+      "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\dotnet.js"
+    },
+    {
       "Identity": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\obj\\Debug\\net8.0\\compressed\\7ehtjhen25.gz",
       "SourceId": "MTGPriceTracker.Client",
       "SourceType": "Computed",
@@ -5109,6 +5109,25 @@
       "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\System.Xml.XmlDocument.wasm"
     },
     {
+      "Identity": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\obj\\Debug\\net8.0\\compressed\\843kjxdvlq.gz",
+      "SourceId": "MTGPriceTracker.Client",
+      "SourceType": "Computed",
+      "ContentRoot": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\",
+      "BasePath": "/",
+      "RelativePath": "_framework/icudt_no_CJK.dat.gz",
+      "AssetKind": "Build",
+      "AssetMode": "All",
+      "AssetRole": "Alternative",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\icudt_no_CJK.dat",
+      "AssetTraitName": "Content-Encoding",
+      "AssetTraitValue": "gzip",
+      "CopyToOutputDirectory": "PreserveNewest",
+      "CopyToPublishDirectory": "Never",
+      "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\icudt_no_CJK.dat"
+    },
+    {
       "Identity": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\obj\\Debug\\net8.0\\compressed\\86u0i5hbxd.gz",
       "SourceId": "MTGPriceTracker.Client",
       "SourceType": "Computed",
@@ -5164,25 +5183,6 @@
       "CopyToOutputDirectory": "PreserveNewest",
       "CopyToPublishDirectory": "Never",
       "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\System.Net.WebHeaderCollection.wasm"
-    },
-    {
-      "Identity": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\obj\\Debug\\net8.0\\compressed\\89mybq8wgs.gz",
-      "SourceId": "MTGPriceTracker.Client",
-      "SourceType": "Computed",
-      "ContentRoot": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\",
-      "BasePath": "/",
-      "RelativePath": "_framework/dotnet.js.map.gz",
-      "AssetKind": "Build",
-      "AssetMode": "All",
-      "AssetRole": "Alternative",
-      "AssetMergeBehavior": "",
-      "AssetMergeSource": "",
-      "RelatedAsset": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\dotnet.js.map",
-      "AssetTraitName": "Content-Encoding",
-      "AssetTraitValue": "gzip",
-      "CopyToOutputDirectory": "PreserveNewest",
-      "CopyToPublishDirectory": "Never",
-      "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\dotnet.js.map"
     },
     {
       "Identity": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\obj\\Debug\\net8.0\\compressed\\8dhaxsto21.gz",
@@ -5280,23 +5280,23 @@
       "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\System.Runtime.Extensions.wasm"
     },
     {
-      "Identity": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\obj\\Debug\\net8.0\\compressed\\a01voxy1vy.gz",
+      "Identity": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\obj\\Debug\\net8.0\\compressed\\9zm8ktvwrp.gz",
       "SourceId": "MTGPriceTracker.Client",
       "SourceType": "Computed",
       "ContentRoot": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\",
       "BasePath": "/",
-      "RelativePath": "_framework/icudt_CJK.dat.gz",
+      "RelativePath": "_framework/dotnet.native.wasm.gz",
       "AssetKind": "Build",
       "AssetMode": "All",
       "AssetRole": "Alternative",
       "AssetMergeBehavior": "",
       "AssetMergeSource": "",
-      "RelatedAsset": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\icudt_CJK.dat",
+      "RelatedAsset": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\dotnet.native.wasm",
       "AssetTraitName": "Content-Encoding",
       "AssetTraitValue": "gzip",
       "CopyToOutputDirectory": "PreserveNewest",
       "CopyToPublishDirectory": "Never",
-      "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\icudt_CJK.dat"
+      "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\dotnet.native.wasm"
     },
     {
       "Identity": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\obj\\Debug\\net8.0\\compressed\\ad79otifr7.gz",
@@ -6133,6 +6133,25 @@
       "CopyToOutputDirectory": "PreserveNewest",
       "CopyToPublishDirectory": "Never",
       "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\Microsoft.AspNetCore.Components.WebAssembly.wasm"
+    },
+    {
+      "Identity": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\obj\\Debug\\net8.0\\compressed\\j6ktr82sk4.gz",
+      "SourceId": "MTGPriceTracker.Client",
+      "SourceType": "Computed",
+      "ContentRoot": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\",
+      "BasePath": "/",
+      "RelativePath": "_framework/dotnet.runtime.8.0.7.j6ktr82sk4.js.gz",
+      "AssetKind": "Build",
+      "AssetMode": "All",
+      "AssetRole": "Alternative",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\dotnet.runtime.8.0.7.j6ktr82sk4.js",
+      "AssetTraitName": "Content-Encoding",
+      "AssetTraitValue": "gzip",
+      "CopyToOutputDirectory": "PreserveNewest",
+      "CopyToPublishDirectory": "Never",
+      "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\dotnet.runtime.8.0.7.j6ktr82sk4.js"
     },
     {
       "Identity": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\obj\\Debug\\net8.0\\compressed\\j6lq9xbvfe.gz",
@@ -7009,6 +7028,25 @@
       "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\System.Security.Cryptography.Encoding.wasm"
     },
     {
+      "Identity": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\obj\\Debug\\net8.0\\compressed\\qrw19awq9p.gz",
+      "SourceId": "MTGPriceTracker.Client",
+      "SourceType": "Computed",
+      "ContentRoot": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\",
+      "BasePath": "/",
+      "RelativePath": "_framework/dotnet.js.map.gz",
+      "AssetKind": "Build",
+      "AssetMode": "All",
+      "AssetRole": "Alternative",
+      "AssetMergeBehavior": "",
+      "AssetMergeSource": "",
+      "RelatedAsset": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\dotnet.js.map",
+      "AssetTraitName": "Content-Encoding",
+      "AssetTraitValue": "gzip",
+      "CopyToOutputDirectory": "PreserveNewest",
+      "CopyToPublishDirectory": "Never",
+      "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\dotnet.js.map"
+    },
+    {
       "Identity": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\obj\\Debug\\net8.0\\compressed\\qx6jnlmcns.gz",
       "SourceId": "MTGPriceTracker.Client",
       "SourceType": "Computed",
@@ -7045,25 +7083,6 @@
       "CopyToOutputDirectory": "PreserveNewest",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\blazor.webassembly.js"
-    },
-    {
-      "Identity": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\obj\\Debug\\net8.0\\compressed\\r0hhdpf1zt.gz",
-      "SourceId": "MTGPriceTracker.Client",
-      "SourceType": "Computed",
-      "ContentRoot": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\",
-      "BasePath": "/",
-      "RelativePath": "_framework/dotnet.runtime.8.0.6.r0hhdpf1zt.js.gz",
-      "AssetKind": "Build",
-      "AssetMode": "All",
-      "AssetRole": "Alternative",
-      "AssetMergeBehavior": "",
-      "AssetMergeSource": "",
-      "RelatedAsset": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\dotnet.runtime.8.0.6.r0hhdpf1zt.js",
-      "AssetTraitName": "Content-Encoding",
-      "AssetTraitValue": "gzip",
-      "CopyToOutputDirectory": "PreserveNewest",
-      "CopyToPublishDirectory": "Never",
-      "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\dotnet.runtime.8.0.6.r0hhdpf1zt.js"
     },
     {
       "Identity": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\obj\\Debug\\net8.0\\compressed\\r2nmct775e.gz",
@@ -7843,25 +7862,6 @@
       "CopyToOutputDirectory": "PreserveNewest",
       "CopyToPublishDirectory": "Never",
       "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\System.IO.MemoryMappedFiles.wasm"
-    },
-    {
-      "Identity": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\obj\\Debug\\net8.0\\compressed\\yzzme2l3gu.gz",
-      "SourceId": "MTGPriceTracker.Client",
-      "SourceType": "Computed",
-      "ContentRoot": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\",
-      "BasePath": "/",
-      "RelativePath": "_framework/dotnet.native.wasm.gz",
-      "AssetKind": "Build",
-      "AssetMode": "All",
-      "AssetRole": "Alternative",
-      "AssetMergeBehavior": "",
-      "AssetMergeSource": "",
-      "RelatedAsset": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\dotnet.native.wasm",
-      "AssetTraitName": "Content-Encoding",
-      "AssetTraitValue": "gzip",
-      "CopyToOutputDirectory": "PreserveNewest",
-      "CopyToPublishDirectory": "Never",
-      "OriginalItemSpec": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\bin\\Debug\\net8.0\\wwwroot\\_framework\\dotnet.native.wasm"
     },
     {
       "Identity": "C:\\Users\\Srujan Vichare\\source\\MTGPriceTracker\\MTGPriceTracker\\MTGPriceTracker.Client\\obj\\Debug\\net8.0\\compressed\\zc187a5z74.gz",

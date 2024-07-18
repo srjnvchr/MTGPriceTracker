@@ -1,15 +1,15 @@
 {
   "mainAssemblyName": "MTGPriceTracker.Client",
   "resources": {
-    "hash": "sha256-TsXN3e2p95mxAvIIT4oRcqB8Y5EAypuZ1EXYQmRdz1E=",
+    "hash": "sha256-8PZ66oL099Y4ctlADFEwlYqaPFwx1MQMtOrDRZ+BrJY=",
     "jsModuleNative": {
-      "dotnet.native.8.0.6.1i061jum8u.js": "sha256-YU6M9+jtDVnB8/wtrgIndOstzNh778Ls8g9XnbjorSk="
+      "dotnet.native.8.0.7.4ew5k89fwj.js": "sha256-tFsxPBbhkdn6GKNBKvCRLzrfAHdyM86odYTe0MtrwMk="
     },
     "jsModuleRuntime": {
-      "dotnet.runtime.8.0.6.r0hhdpf1zt.js": "sha256-+E96dgYQl8OrHQb4yNZ7QwNr3SZzLSP8lwKRzwSiMsw="
+      "dotnet.runtime.8.0.7.j6ktr82sk4.js": "sha256-soZyw6XWXOLKhA26AOyzSpCP5cAsw1wvhdPHSYNTMfQ="
     },
     "wasmNative": {
-      "dotnet.native.wasm": "sha256-QvXWDxAxKcwrwr5J00t53OFtgShscemIYbvFu+ry5Ug="
+      "dotnet.native.wasm": "sha256-ApuqKsuYqEC0ZTUIUV5mIV1IIRYYCwmOiB912jgs8CQ="
     },
     "icu": {
       "icudt_CJK.dat": "sha256-SZLtQnRc0JkwqHab0VUVP7T3uBPSeYzxzDnpxPpUnHk=",
@@ -213,11 +213,11 @@
       "netstandard.wasm": "sha256-z1EJOmgVhSpTopn7Tek/0P//MKGF1I3NUD/sh4oLnwY=",
       "System.Private.CoreLib.wasm": "sha256-tuIWpR30u0OoEVtv4pXZ47mEpI2AmFBIyYFPnqDZZfw=",
       "MTGPriceTracker.Shared.wasm": "sha256-3exPRCHglOpSECD6sRIA7j+thACaTjoRgE3BEQycIFE=",
-      "MTGPriceTracker.Client.wasm": "sha256-puz0cFzZzsIBBwzVGVglBuZZLrII9AH2B48seUred2c="
+      "MTGPriceTracker.Client.wasm": "sha256-Nze690/OmMQndXaswUlm4bigil096XTz8OxVURceJRI="
     },
     "pdb": {
       "MTGPriceTracker.Shared.pdb": "sha256-bJ7qPg8wBqnfVGnkrJAAM/OjIlR7ftd13fXbIhduyuY=",
-      "MTGPriceTracker.Client.pdb": "sha256-us9QGbnNEGVFKHv/owsq5IWkra86/BZD4Xa4hVu2syo="
+      "MTGPriceTracker.Client.pdb": "sha256-GW5XdlDv1BY3E6PhaMHxbxd1Nal+LJ7Mt6lWPpNC8v4="
     }
   },
   "cacheBootResources": true,
