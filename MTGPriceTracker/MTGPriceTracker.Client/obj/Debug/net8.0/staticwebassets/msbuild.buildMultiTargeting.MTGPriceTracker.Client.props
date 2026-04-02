@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="..\build\MTGPriceTracker.Client.props" />
-</Project>

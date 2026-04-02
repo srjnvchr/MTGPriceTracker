@@ -1,16 +1,68 @@
-﻿@inherits LayoutComponentBase
-<div class="page">
-    <div class="sidebar">
+@inherits LayoutComponentBase
+
+<MudThemeProvider Theme="_theme" IsDarkMode="true" />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout>
+    <MudAppBar Elevation="1" Color="Color.Dark">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start"
+                       OnClick="@ToggleDrawer" />
+        <MudText Typo="Typo.h6" Class="ml-2" Style="font-weight:600; letter-spacing:0.5px;">
+            ⚔️ MTG Price Tracker
+        </MudText>
+        <MudSpacer />
+    </MudAppBar>
+
+    <MudDrawer @bind-Open="_drawerOpen" Elevation="2" Variant="DrawerVariant.Responsive"
+               ClipMode="DrawerClipMode.Always">
+        <MudDrawerHeader>
+            <MudText Typo="Typo.subtitle1" Style="font-weight:600; color:var(--mud-palette-primary);">
+                Navigation
+            </MudText>
+        </MudDrawerHeader>
         <NavMenu />
-    </div>
+    </MudDrawer>
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
-
-        <article class="content px-4">
+    <MudMainContent>
+        <MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="pt-4 pb-8">
             @Body
-        </article>
-    </main>
-</div>
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    private bool _drawerOpen = true;
+
+    private readonly MudTheme _theme = new()
+    {
+        PaletteLight = new PaletteLight
+        {
+            Primary = "#7b2d8b",
+            Secondary = "#4a90d9",
+        },
+        PaletteDark = new PaletteDark
+        {
+            Primary = "#9c4dbb",
+            Secondary = "#5ba3e8",
+            Background = "#0d0d1a",
+            Surface = "#1a1a2e",
+            AppbarBackground = "#12121f",
+            DrawerBackground = "#12121f",
+            DrawerText = "rgba(255,255,255,0.7)",
+            DrawerIcon = "rgba(255,255,255,0.7)",
+            TextPrimary = "rgba(255,255,255,0.87)",
+            TextSecondary = "rgba(255,255,255,0.6)",
+            LinesDefault = "rgba(255,255,255,0.12)",
+            TableLines = "rgba(255,255,255,0.08)",
+            Divider = "rgba(255,255,255,0.08)",
+        },
+        Typography = new Typography
+        {
+            Default = new Default { FontFamily = ["Roboto", "sans-serif"] }
+        }
+    };
+
+    private void ToggleDrawer() => _drawerOpen = !_drawerOpen;
+}

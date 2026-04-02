@@ -1,0 +1,189 @@
+@page "/sync"
+@inject ApiService Api
+@inject ISnackbar Snackbar
+@implements IDisposable
+
+<PageTitle>Data Sync — MTG Price Tracker</PageTitle>
+
+<MudText Typo="Typo.h5" Class="mb-6" Style="font-weight:600;">
+    <MudIcon Icon="@Icons.Material.Filled.Sync" Class="mr-2" />
+    Data Sync
+</MudText>
+
+@if (_apiError)
+{
+    <MudAlert Severity="Severity.Warning" Class="mb-4">
+        Cannot reach the server. Is the backend running? Retrying every 3 seconds...
+    </MudAlert>
+}
+
+<!-- Status cards — always visible -->
+<MudGrid Spacing="4" Class="mb-6">
+    <MudItem xs="12" sm="6" md="3">
+        <MudPaper Elevation="2" Class="pa-4 text-center" Style="background:var(--mud-palette-surface); border-radius:12px;">
+            <MudText Typo="Typo.h4" Style="color:var(--mud-palette-primary); font-weight:700;">
+                @_status.TotalCards.ToString("N0")
+            </MudText>
+            <MudText Typo="Typo.caption" Style="color:rgba(255,255,255,0.5);">CARDS IN DATABASE</MudText>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" sm="6" md="3">
+        <MudPaper Elevation="2" Class="pa-4 text-center" Style="background:var(--mud-palette-surface); border-radius:12px;">
+            <MudText Typo="Typo.h4" Style="color:var(--mud-palette-secondary); font-weight:700;">
+                @_status.TotalPriceSnapshots.ToString("N0")
+            </MudText>
+            <MudText Typo="Typo.caption" Style="color:rgba(255,255,255,0.5);">PRICE RECORDS</MudText>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" sm="6" md="3">
+        <MudPaper Elevation="2" Class="pa-4 text-center" Style="background:var(--mud-palette-surface); border-radius:12px;">
+            <MudText Typo="Typo.h6" Style="@(_status.IsRunning ? "color:#ffa726; font-weight:600;" : "color:#66bb6a; font-weight:600;")">
+                @(_status.IsRunning ? "⏳ Running" : "✅ Idle")
+            </MudText>
+            <MudText Typo="Typo.caption" Style="color:rgba(255,255,255,0.5);">STATUS</MudText>
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" sm="6" md="3">
+        <MudPaper Elevation="2" Class="pa-4 text-center" Style="background:var(--mud-palette-surface); border-radius:12px;">
+            <MudText Typo="Typo.body2" Style="color:#81c784; font-weight:600;">
+                @(_status.LastSyncAt.HasValue
+                    ? _status.LastSyncAt.Value.ToLocalTime().ToString("dd MMM yyyy HH:mm")
+                    : "Never")
+            </MudText>
+            <MudText Typo="Typo.caption" Style="color:rgba(255,255,255,0.5);">LAST SYNC</MudText>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+@if (_status.IsRunning && !string.IsNullOrWhiteSpace(_status.CurrentOperation))
+{
+    <MudAlert Severity="Severity.Info" Class="mb-4">
+        <div class="d-flex align-center gap-2">
+            <MudProgressCircular Size="Size.Small" Indeterminate="true" />
+            <MudText>@_status.CurrentOperation</MudText>
+        </div>
+    </MudAlert>
+}
+
+@if (!string.IsNullOrWhiteSpace(_status.LastSyncResult))
+{
+    <MudAlert Severity="@(_status.LastSyncResult.StartsWith("Error") ? Severity.Error : Severity.Success)" Class="mb-6">
+        @_status.LastSyncResult
+    </MudAlert>
+}
+
+<!-- Actions -->
+<MudText Typo="Typo.h6" Class="mb-3" Style="font-weight:600;">Sync Actions</MudText>
+<MudGrid Spacing="3">
+
+    <MudItem xs="12" md="6">
+        <MudPaper Elevation="2" Class="pa-5" Style="background:var(--mud-palette-surface); border-radius:12px; height:100%;">
+            <div class="d-flex align-center mb-3">
+                <MudIcon Icon="@Icons.Material.Filled.Download" Color="Color.Primary" Class="mr-2" />
+                <MudText Typo="Typo.h6" Style="font-weight:600;">Import Card Catalog</MudText>
+            </div>
+            <MudText Typo="Typo.body2" Class="mb-4" Style="color:rgba(255,255,255,0.6);">
+                Downloads and imports all MTG card data from MTGJSON (AllPrintings.json).
+                This is a <strong>one-time setup</strong> that takes 3–10 minutes.
+                Run again when new sets are released.
+            </MudText>
+            <MudText Typo="Typo.caption" Class="mb-4" Style="color:rgba(255,255,255,0.4);">
+                Source: mtgjson.com/api/v5/AllPrintings.json.gz
+            </MudText>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                       OnClick="ImportCatalog"
+                       Disabled="_status.IsRunning"
+                       StartIcon="@Icons.Material.Filled.CloudDownload"
+                       FullWidth="true">
+                Import Card Catalog
+            </MudButton>
+        </MudPaper>
+    </MudItem>
+
+    <MudItem xs="12" md="6">
+        <MudPaper Elevation="2" Class="pa-5" Style="background:var(--mud-palette-surface); border-radius:12px; height:100%;">
+            <div class="d-flex align-center mb-3">
+                <MudIcon Icon="@Icons.Material.Filled.AttachMoney" Color="Color.Secondary" Class="mr-2" />
+                <MudText Typo="Typo.h6" Style="font-weight:600;">Sync Prices</MudText>
+            </div>
+            <MudText Typo="Typo.body2" Class="mb-4" Style="color:rgba(255,255,255,0.6);">
+                Downloads latest prices from MTGJSON (TCGPlayer, Card Kingdom, CardMarket)
+                and scrapes Good Games AU. Runs automatically daily at 1:00 AM AEST.
+            </MudText>
+            <MudText Typo="Typo.caption" Class="mb-4" Style="color:rgba(255,255,255,0.4);">
+                Source: mtgjson.com + goodgames.com.au
+            </MudText>
+            <MudButton Variant="Variant.Filled" Color="Color.Secondary"
+                       OnClick="TriggerSync"
+                       Disabled="_status.IsRunning || _status.TotalCards == 0"
+                       StartIcon="@Icons.Material.Filled.Sync"
+                       FullWidth="true">
+                Sync Prices Now
+            </MudButton>
+        </MudPaper>
+    </MudItem>
+</MudGrid>
+
+<MudText Typo="Typo.caption" Class="mt-6" Style="color:rgba(255,255,255,0.3);">
+    Note: Automatic price sync runs daily at 1:00 AM AEST. Good Games scraper is rate-limited to 1 request/second.
+</MudText>
+
+@code {
+
+    private SyncStatusDto _status = new();
+    private System.Threading.Timer? _pollTimer;
+    private bool _apiError;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await RefreshStatusAsync();
+        // Poll every 3 seconds to keep tiles live
+        _pollTimer = new System.Threading.Timer(async _ =>
+        {
+            await RefreshStatusAsync();
+            await InvokeAsync(StateHasChanged);
+        }, null, TimeSpan.FromSeconds(3), TimeSpan.FromSeconds(3));
+    }
+
+    private async Task RefreshStatusAsync()
+    {
+        try
+        {
+            var result = await Api.GetSyncStatusAsync();
+            if (result is not null)
+            {
+                _status = result;
+                _apiError = false;
+            }
+        }
+        catch
+        {
+            _apiError = true;
+        }
+    }
+
+    private async Task ImportCatalog()
+    {
+        var result = await Api.TriggerCatalogImportAsync();
+        if (result?.Success == true)
+            Snackbar.Add(result.Message, Severity.Info);
+        else
+            Snackbar.Add(result?.Message ?? "Failed to trigger import", Severity.Warning);
+        await RefreshStatusAsync();
+    }
+
+    private async Task TriggerSync()
+    {
+        var result = await Api.TriggerSyncAsync();
+        if (result?.Success == true)
+            Snackbar.Add(result.Message, Severity.Success);
+        else
+            Snackbar.Add(result?.Message ?? "Failed to trigger sync", Severity.Warning);
+        await RefreshStatusAsync();
+    }
+
+    public void Dispose()
+    {
+        _pollTimer?.Dispose();
+    }
+}

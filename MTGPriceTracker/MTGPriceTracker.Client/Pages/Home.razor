@@ -1,7 +1,126 @@
-﻿@page "/"
+@page "/"
+@inject ApiService Api
+@inject NavigationManager Nav
 
-<PageTitle>Home</PageTitle>
+<PageTitle>MTG Price Tracker — Home</PageTitle>
 
-<h1>Hello, world!</h1>
+<div class="home-hero">
+    <MudText Typo="Typo.h3" Align="Align.Center" Class="mb-2" Style="font-weight:700; color:var(--mud-palette-primary);">
+        ⚔️ MTG Price Tracker
+    </MudText>
+    <MudText Typo="Typo.subtitle1" Align="Align.Center" Class="mb-8" Style="color:rgba(255,255,255,0.6);">
+        Track card prices across TCGPlayer, Card Kingdom, CardMarket &amp; Good Games AU
+    </MudText>
 
-Welcome to your new app.
+    <!-- Search bar -->
+    <MudPaper Elevation="4" Class="pa-4 mb-8" Style="max-width:680px; margin-left:auto; margin-right:auto; background:var(--mud-palette-surface);">
+        <MudTextField @bind-Value="_searchQuery"
+                      Placeholder="Search for a card... e.g. Black Lotus, Lightning Bolt"
+                      Adornment="Adornment.End"
+                      AdornmentIcon="@Icons.Material.Filled.Search"
+                      AdornmentColor="Color.Primary"
+                      Variant="Variant.Outlined"
+                      FullWidth="true"
+                      OnKeyUp="HandleSearchKeyUp"
+                      Immediate="false" />
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true"
+                   Class="mt-3" OnClick="Search" StartIcon="@Icons.Material.Filled.Search">
+            Search Cards
+        </MudButton>
+    </MudPaper>
+
+    <!-- Quick stats -->
+    @if (_stats != null)
+    {
+        <div class="d-flex justify-center gap-4 flex-wrap mb-8">
+            <MudPaper Elevation="2" Class="pa-4 text-center stat-chip">
+                <MudText Typo="Typo.h4" Style="color:var(--mud-palette-primary); font-weight:700;">
+                    @_stats.TotalCards.ToString("N0")
+                </MudText>
+                <MudText Typo="Typo.caption" Style="color:rgba(255,255,255,0.5);">CARDS TRACKED</MudText>
+            </MudPaper>
+            <MudPaper Elevation="2" Class="pa-4 text-center stat-chip">
+                <MudText Typo="Typo.h4" Style="color:var(--mud-palette-secondary); font-weight:700;">
+                    @_stats.TotalPriceSnapshots.ToString("N0")
+                </MudText>
+                <MudText Typo="Typo.caption" Style="color:rgba(255,255,255,0.5);">PRICE RECORDS</MudText>
+            </MudPaper>
+            @if (_stats.LastSyncAt.HasValue)
+            {
+                <MudPaper Elevation="2" Class="pa-4 text-center stat-chip">
+                    <MudText Typo="Typo.h6" Style="color:#4caf50; font-weight:600;">
+                        @_stats.LastSyncAt.Value.ToLocalTime().ToString("dd MMM yyyy HH:mm")
+                    </MudText>
+                    <MudText Typo="Typo.caption" Style="color:rgba(255,255,255,0.5);">LAST SYNC</MudText>
+                </MudPaper>
+            }
+        </div>
+    }
+
+    <!-- Quick links -->
+    <div class="d-flex justify-center gap-4 flex-wrap">
+        <MudButton Variant="Variant.Outlined" Color="Color.Primary" Href="/cards"
+                   StartIcon="@Icons.Material.Filled.Style" Size="Size.Large">
+            Browse All Cards
+        </MudButton>
+        <MudButton Variant="Variant.Outlined" Color="Color.Secondary" Href="/favorites"
+                   StartIcon="@Icons.Material.Filled.Favorite" Size="Size.Large">
+            My Favorites
+        </MudButton>
+        <MudButton Variant="Variant.Outlined" Color="Color.Default" Href="/sync"
+                   StartIcon="@Icons.Material.Filled.Sync" Size="Size.Large">
+            Data Sync
+        </MudButton>
+    </div>
+
+    @if (_stats?.TotalCards == 0)
+    {
+        <MudAlert Severity="Severity.Info" Class="mt-8" Style="max-width:680px; margin-left:auto; margin-right:auto;">
+            <MudText>
+                <strong>First time setup:</strong> The database is empty. Go to
+                <MudLink Href="/sync" Color="Color.Info">Data Sync</MudLink>
+                and click <strong>Import Card Catalog</strong> to download all cards from MTGJSON (~3–10 minutes).
+                Then trigger a price sync to populate prices.
+            </MudText>
+        </MudAlert>
+    }
+</div>
+
+<style>
+    .home-hero {
+        padding: 48px 16px;
+        text-align: center;
+    }
+    .stat-chip {
+        min-width: 160px;
+        background: var(--mud-palette-surface) !important;
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 12px;
+    }
+</style>
+
+@code {
+    private string _searchQuery = string.Empty;
+    private SyncStatusDto? _stats;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _stats = await Api.GetSyncStatusAsync();
+        }
+        catch { /* stats are optional */ }
+    }
+
+    private void Search()
+    {
+        if (!string.IsNullOrWhiteSpace(_searchQuery))
+            Nav.NavigateTo($"/cards?query={Uri.EscapeDataString(_searchQuery)}");
+    }
+
+    private void HandleSearchKeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+            Search();
+    }
+}

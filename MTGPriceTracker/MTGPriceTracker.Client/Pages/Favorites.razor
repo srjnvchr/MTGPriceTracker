@@ -1,0 +1,102 @@
+@page "/favorites"
+@inject ApiService Api
+@inject ISnackbar Snackbar
+
+<PageTitle>Favorites — MTG Price Tracker</PageTitle>
+
+<div class="d-flex align-center mb-4">
+    <MudText Typo="Typo.h5" Style="font-weight:600;">
+        <MudIcon Icon="@Icons.Material.Filled.Favorite" Color="Color.Error" Class="mr-2" />
+        My Favorites
+    </MudText>
+    <MudSpacer />
+    @if (_favorites.Count > 0)
+    {
+        <MudText Typo="Typo.caption" Style="color:rgba(255,255,255,0.5);">
+            @_favorites.Count card@(_favorites.Count == 1 ? "" : "s")
+        </MudText>
+    }
+</div>
+
+@if (_loading)
+{
+    <div class="d-flex justify-center mt-8">
+        <MudProgressCircular Color="Color.Error" Indeterminate="true" Size="Size.Large" />
+    </div>
+}
+else if (_favorites.Count == 0)
+{
+    <div class="d-flex flex-column align-center mt-12" style="gap:16px;">
+        <MudIcon Icon="@Icons.Material.Outlined.FavoriteBorder" Style="font-size:64px; color:rgba(255,255,255,0.2);" />
+        <MudText Typo="Typo.h6" Style="color:rgba(255,255,255,0.4);">No favorites yet</MudText>
+        <MudText Typo="Typo.body2" Style="color:rgba(255,255,255,0.3);">
+            Click the ♡ on any card to add it to your favorites
+        </MudText>
+        <MudButton Variant="Variant.Outlined" Color="Color.Primary" Href="/cards"
+                   StartIcon="@Icons.Material.Filled.Style">
+            Browse Cards
+        </MudButton>
+    </div>
+}
+else
+{
+    <MudGrid Spacing="3">
+        @foreach (var card in _favorites)
+        {
+            <MudItem xs="12" sm="6" md="4" lg="3" xl="2">
+                <CardGridItem Card="card" OnFavoriteToggled="HandleFavoriteToggled" />
+            </MudItem>
+        }
+    </MudGrid>
+}
+
+@code {
+    private List<CardDto> _favorites = new();
+    private bool _loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadFavoritesAsync();
+    }
+
+    private async Task LoadFavoritesAsync()
+    {
+        _loading = true;
+        try
+        {
+            _favorites = await Api.GetFavoritesAsync();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error loading favorites: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private async Task HandleFavoriteToggled(CardDto card)
+    {
+        try
+        {
+            if (card.IsFavorite)
+            {
+                await Api.AddFavoriteAsync(card.Uuid);
+                Snackbar.Add($"{card.Name} added to favorites", Severity.Success);
+            }
+            else
+            {
+                await Api.RemoveFavoriteAsync(card.Uuid);
+                Snackbar.Add($"{card.Name} removed from favorites", Severity.Info);
+                _favorites.Remove(card);
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error updating favorites: {ex.Message}", Severity.Error);
+            card.IsFavorite = !card.IsFavorite; // revert
+        }
+    }
+}
