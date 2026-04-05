@@ -11,6 +11,8 @@ public class CardDto
     public string? ManaCost { get; set; }
     public string? ScryfallId { get; set; }
     public bool IsFavorite { get; set; }
+    public bool HasFoil { get; set; }
+    public bool HasNonFoil { get; set; } = true;
 
     // Latest price snapshot per vendor (for card list display)
     public Dictionary<string, decimal> LatestPrices { get; set; } = new();

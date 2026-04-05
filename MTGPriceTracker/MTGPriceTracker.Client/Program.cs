@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MTGPriceTracker.Client;
 using MTGPriceTracker.Client.Services;
 using MudBlazor.Services;
-using ApexCharts;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -17,5 +16,6 @@ builder.Services.AddHttpClient<ApiService>(client =>
 
 // MudBlazor
 builder.Services.AddMudServices();
+
 
 await builder.Build().RunAsync();

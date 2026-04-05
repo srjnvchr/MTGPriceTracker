@@ -156,9 +156,12 @@ MTGPriceTracker.Client/
 | CardUuid | TEXT FK | → Cards.Uuid |
 | Vendor | TEXT | tcgplayer/cardkingdom/cardmarket/goodgames |
 | PriceType | TEXT | retail/buylist |
+| Condition | TEXT | NM/LP/MP/HP/DMG/NM_FOIL/LP_FOIL/… Null for MTGJSON market prices |
 | Currency | TEXT | USD/EUR/AUD |
 | Price | REAL | Price value |
 | Date | TEXT | ISO date (YYYY-MM-DD) |
+
+Unique index: `(CardUuid, Vendor, PriceType, Condition, Date)` — SQLite treats each NULL as distinct so MTGJSON rows (null condition) don't collide with each other.
 
 ### UserFavorites
 | Column | Type | Notes |
@@ -179,9 +182,9 @@ MTGPriceTracker.Client/
 | cardmarket | EUR | retail |
 
 ### Local Vendors (scraped)
-| Vendor | Currency | Method |
-|---|---|---|
-| goodgames | AUD | Web scraper (goodgames.com.au) |
+| Vendor | Currency | Method | Conditions |
+|---|---|---|---|
+| goodgames | AUD | Shopify JSON API (tcg.goodgames.com.au) | NM, LP, MP, HP, DMG + foil variants |
 
 ### Currency Conversion
 - Stored in native currency
@@ -208,11 +211,14 @@ The daily import downloads two files from `https://mtgjson.com/api/v5/`:
 
 ## Good Games Scraper
 
-- Target: `https://www.goodgames.com.au`
-- Strategy: Search by card name, parse product listings
-- Rate limiting: 1 request/second to be polite
-- Scheduled: Daily at 2 AM AEST (after MTGJSON sync)
-- Stored as `goodgames` vendor in PriceSnapshots with AUD currency
+- Target: `https://tcg.goodgames.com.au`
+- Strategy: Paginate the Shopify `/collections/magic-the-gathering/products.json` endpoint (250 products/page) — no HTML parsing
+- Each product returns all variants (NM, LP, MP, HP, DMG, foil) with prices as clean JSON
+- Matching: product title parsed to extract card name (text before `[set name]`), then matched to DB by name (case-insensitive, first UUID wins per name)
+- Rate limiting: 500 ms between pages
+- Scheduled: Part of daily sync job at 1:00 AM AEST
+- Stored as `goodgames` vendor with AUD currency and per-condition `Condition` column
+- **Collection handle to verify**: if scraper returns 0 results, visit tcg.goodgames.com.au and check the URL path for their MTG singles collection, then update `CollectionHandle` in `GoodGamesScraperService.cs`
 
 ---
 
@@ -230,8 +236,8 @@ The daily import downloads two files from `https://mtgjson.com/api/v5/`:
 - [ ] Rule-based notification system (e.g. "alert when TCGPlayer > Good Games AUD")
 - [ ] Currency conversion with live rates
 - [ ] User accounts / multi-user favorites
-- [ ] Card condition tracking (NM, LP, MP, HP)
-- [ ] Foil price tracking
+- [x] Card condition tracking (NM, LP, MP, HP, DMG) — implemented for Good Games
+- [x] Foil price tracking — implemented (NM_FOIL, LP_FOIL, …)
 - [ ] More Australian resellers (Auggies, Magic Madhouse AU)
 - [ ] Price alerts via email/push
 
@@ -247,3 +253,6 @@ The daily import downloads two files from `https://mtgjson.com/api/v5/`:
 | 2026-04-02 | MTGJSON as primary data source | Official MTG data with daily price updates across all major vendors |
 | 2026-04-02 | Blazor-ApexCharts for price charts | Rich interactive time-series charts vs MudBlazor's basic MudChart |
 | 2026-04-02 | Store prices in native currency | Avoids stale conversion data; convert at display time |
+| 2026-04-03 | Condition column on PriceSnapshot | Good Games sells NM/LP/MP/HP/DMG separately; MTGJSON is condition-agnostic (null) |
+| 2026-04-03 | Shopify JSON API over HTML scraping for Good Games | Structured JSON from /collections/{handle}/products.json is more reliable, captures all variants in one pass, and doesn't break when the theme changes |
+| 2026-04-03 | IServiceScopeFactory in SyncController | IServiceProvider injected into controllers is request-scoped and disposed on response; IServiceScopeFactory is singleton and safe for fire-and-forget background tasks |

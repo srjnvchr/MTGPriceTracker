@@ -1,3 +1,0 @@
-C:\Users\hummingbird\source\repos\MTGPriceTracker\MTGPriceTracker\MTGPriceTracker.Client\obj\Debug\net8.0\staticwebassets.build.json
-C:\Users\hummingbird\source\repos\MTGPriceTracker\MTGPriceTracker\MTGPriceTracker.Client\obj\Debug\net8.0\staticwebassets.build.json
-C:\Users\hummingbird\source\repos\MTGPriceTracker\MTGPriceTracker\MTGPriceTracker.Client\obj\Debug\net8.0\staticwebassets.build.json

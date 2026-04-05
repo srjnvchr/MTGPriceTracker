@@ -65,11 +65,35 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// ── Ensure database is created ────────────────────────────────────────────────
+// ── Ensure database is created and tuned ─────────────────────────────────────
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     await db.Database.EnsureCreatedAsync();
+
+    // WAL mode persists in the DB file once set, so this is idempotent.
+    // Synchronous=NORMAL is safe with WAL and ~2x faster than the default FULL.
+    await db.Database.ExecuteSqlRawAsync("PRAGMA journal_mode=WAL");
+    await db.Database.ExecuteSqlRawAsync("PRAGMA synchronous=NORMAL");
+
+    // Schema evolution: add new columns to Cards if they don't exist yet.
+    // EnsureCreated won't alter existing tables, so we do it manually.
+    // SQLite doesn't support IF NOT EXISTS on ALTER TABLE, so we swallow the error.
+    foreach (var sql in new[]
+    {
+        "ALTER TABLE \"Cards\" ADD COLUMN \"FrameEffects\" TEXT",
+        "ALTER TABLE \"Cards\" ADD COLUMN \"BorderColor\"  TEXT",
+        // HasNonFoil defaults to 1 (true) so existing cards without data stay valid.
+        "ALTER TABLE \"Cards\" ADD COLUMN \"HasNonFoil\"       INTEGER NOT NULL DEFAULT 1",
+        "ALTER TABLE \"Cards\" ADD COLUMN \"HasFoil\"          INTEGER NOT NULL DEFAULT 0",
+        "ALTER TABLE \"Cards\" ADD COLUMN \"HasEtched\"        INTEGER NOT NULL DEFAULT 0",
+        // CollectorNumber: MTGJSON 'number' field. Enables exact SKU-based GG matching.
+        "ALTER TABLE \"Cards\" ADD COLUMN \"CollectorNumber\"  TEXT",
+    })
+    {
+        try { await db.Database.ExecuteSqlRawAsync(sql); }
+        catch { /* column already exists — safe to ignore */ }
+    }
 }
 
 // ── Middleware pipeline ───────────────────────────────────────────────────────

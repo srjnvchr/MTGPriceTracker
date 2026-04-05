@@ -1,4 +1,4 @@
-@inject NavigationManager Nav
+@* @inject NavigationManager Nav
 
 <MudCard Class="card-grid-item" Style="cursor:pointer; background:var(--mud-palette-surface); border:1px solid rgba(255,255,255,0.08); transition: transform 0.15s ease, box-shadow 0.15s ease;"
          @onclick="NavigateToCard">
@@ -27,8 +27,7 @@
                        Color="@(Card.IsFavorite ? Color.Error : Color.Default)"
                        Size="Size.Small"
                        Style="position:absolute; top:4px; right:4px; background:rgba(0,0,0,0.6);"
-                       OnClick="ToggleFavorite"
-                       StopPropagation="true" />
+                       OnClick="ToggleFavorite" />
     </div>
 
     <MudCardContent Class="pa-2">
@@ -105,4 +104,4 @@
         return currency;
     }
 }
-        
+         *@

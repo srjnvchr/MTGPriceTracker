@@ -1,0 +1,408 @@
+@page "/debug/goodgames"
+@inject ApiService Api
+@inject ISnackbar Snackbar
+
+<PageTitle>GG Product Inspector — MTG Price Tracker</PageTitle>
+
+<MudText Typo="Typo.h5" Class="mb-2" Style="font-weight:600;">
+    <MudIcon Icon="@Icons.Material.Filled.BugReport" Class="mr-2" />
+    Good Games Product Inspector
+</MudText>
+<MudText Typo="Typo.body2" Class="mb-6" Style="color:rgba(255,255,255,0.5);">
+    Fetches live data from tcg.goodgames.com.au showing all Shopify fields (tags, SKUs, barcodes)
+    and exactly how each product is matched — via SKU collector number or title fuzzy matching.
+    Read-only: nothing is written to the database.
+</MudText>
+
+<!-- Search bar -->
+<MudPaper Elevation="2" Class="pa-4 mb-6" Style="background:var(--mud-palette-surface); border-radius:12px;">
+    <MudGrid AlignItems="Center" Spacing="2">
+        <MudItem xs="12" sm="8" md="9">
+            <MudTextField @bind-Value="_searchTerm"
+                          Label="Card name to inspect"
+                          Placeholder="e.g. the one ring"
+                          Variant="Variant.Outlined"
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search"
+                          @onkeydown="OnKeyDown"
+                          FullWidth="true" />
+        </MudItem>
+        <MudItem xs="12" sm="4" md="3">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                       OnClick="RunInspect"
+                       Disabled="_loading"
+                       StartIcon="@Icons.Material.Filled.ManageSearch"
+                       FullWidth="true">
+                @(_loading ? "Fetching…" : "Inspect")
+            </MudButton>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
+
+@if (_loading)
+{
+    <MudProgressLinear Indeterminate="true" Color="Color.Primary" Class="mb-4" />
+    <MudText Typo="Typo.body2" Style="color:rgba(255,255,255,0.5);">
+        Paginating through GG collection — this may take 30–60 seconds…
+    </MudText>
+}
+
+@if (_result is not null)
+{
+    <!-- Summary bar -->
+    <MudPaper Elevation="1" Class="pa-3 mb-5 d-flex align-center gap-4"
+              Style="background:var(--mud-palette-drawer-background); border-radius:8px; flex-wrap:wrap;">
+        <MudChip T="string" Color="Color.Default" Size="Size.Small" Icon="@Icons.Material.Filled.Search">
+            Scanned: @_result.TotalScanned.ToString("N0")
+        </MudChip>
+        <MudChip T="string" Color="Color.Primary" Size="Size.Small" Icon="@Icons.Material.Filled.FilterList">
+            Found: @_result.TotalMatched
+        </MudChip>
+        <MudChip T="string" Color="Color.Success" Size="Size.Small" Icon="@Icons.Material.Filled.VpnKey">
+            SKU exact: @_result.SkuMatched
+        </MudChip>
+        <MudChip T="string" Color="Color.Warning" Size="Size.Small" Icon="@Icons.Material.Filled.TextFields">
+            Fuzzy: @_result.FuzzyMatched
+        </MudChip>
+        <MudChip T="string" Color="Color.Error" Size="Size.Small" Icon="@Icons.Material.Filled.Cancel">
+            Unmatched: @(_result.TotalMatched - _result.SkuMatched - _result.FuzzyMatched)
+        </MudChip>
+        <MudText Typo="Typo.caption" Style="color:rgba(255,255,255,0.35); margin-left:auto;">
+            @_result.FetchedAt
+        </MudText>
+    </MudPaper>
+
+    @if (!_result.Products.Any())
+    {
+        <MudAlert Severity="Severity.Warning">
+            No products found matching "@_result.SearchTerm". Check the card name spelling.
+        </MudAlert>
+    }
+
+    @foreach (var product in _result.Products)
+    {
+        var borderColor = product.MatchMethod == "SKU"   ? "#66bb6a"
+                        : product.MatchMethod == "Fuzzy" ? "#ffa726"
+                        : "#ef5350";
+
+        <MudPaper Elevation="3" Class="pa-5 mb-6"
+                  Style="@($"background:var(--mud-palette-surface); border-radius:12px; border-left:4px solid {borderColor};")">
+
+            <!-- Header -->
+            <div class="d-flex align-center justify-space-between mb-3" style="flex-wrap:wrap; gap:8px;">
+                <div>
+                    <MudText Typo="Typo.h6" Style="font-weight:700;">@product.Title</MudText>
+                    <MudText Typo="Typo.caption" Style="color:rgba(255,255,255,0.4);">
+                        <a href="@product.ProductUrl" target="_blank" style="color:rgba(255,255,255,0.4);">@product.Handle</a>
+                    </MudText>
+                </div>
+                <div class="d-flex gap-2" style="flex-wrap:wrap;">
+                    @if (product.MatchMethod == "SKU")
+                    {
+                        <MudChip T="string" Color="Color.Success" Size="Size.Small" Icon="@Icons.Material.Filled.VpnKey">
+                            SKU Exact Match
+                        </MudChip>
+                    }
+                    else if (product.MatchMethod == "Fuzzy")
+                    {
+                        <MudChip T="string" Color="Color.Warning" Size="Size.Small" Icon="@Icons.Material.Filled.TextFields">
+                            Fuzzy Match
+                        </MudChip>
+                    }
+                    else
+                    {
+                        <MudChip T="string" Color="Color.Error" Size="Size.Small" Icon="@Icons.Material.Filled.Cancel">
+                            No Match
+                        </MudChip>
+                    }
+                    @if (product.WouldWriteNonFoilPrice)
+                    {
+                        <MudChip T="string" Color="Color.Info" Size="Size.Small" Icon="@Icons.Material.Filled.Savings">
+                            Writes NM
+                        </MudChip>
+                    }
+                    @if (product.WouldWriteFoilPrice)
+                    {
+                        <MudChip T="string" Color="Color.Info" Size="Size.Small" Icon="@Icons.Material.Filled.AutoFixHigh">
+                            Writes Foil
+                        </MudChip>
+                    }
+                </div>
+            </div>
+
+            <MudGrid Spacing="4">
+
+                <!-- Raw Shopify -->
+                <MudItem xs="12" md="6">
+                    <MudText Typo="Typo.overline" Style="color:var(--mud-palette-primary); letter-spacing:1.5px;">
+                        Raw Shopify Data
+                    </MudText>
+                    <MudSimpleTable Dense="true" Hover="false" Class="mt-2" Style="font-size:0.82rem;">
+                        <tbody>
+                            <tr><td style="@L">Shopify ID</td><td style="font-family:monospace;">@product.ShopifyId</td></tr>
+                            <tr><td style="@L">Product Type</td><td>@(product.ProductType is { Length: > 0 } ? product.ProductType : "—")</td></tr>
+                            <tr><td style="@L">Vendor</td><td>@(product.Vendor is { Length: > 0 } ? product.Vendor : "—")</td></tr>
+                            <tr>
+                                <td style="@L">Tags (@product.Tags.Count)</td>
+                                <td>
+                                    @if (product.Tags.Any())
+                                    {
+                                        <div style="display:flex;flex-wrap:wrap;gap:4px;">
+                                            @foreach (var tag in product.Tags)
+                                            {
+                                                <MudChip T="string" Size="Size.Small" Color="Color.Dark">@tag</MudChip>
+                                            }
+                                        </div>
+                                    }
+                                    else { <span style="color:rgba(255,255,255,0.3);">none</span> }
+                                </td>
+                            </tr>
+                        </tbody>
+                    </MudSimpleTable>
+                </MudItem>
+
+                <!-- Parsed + title-based match info -->
+                <MudItem xs="12" md="6">
+                    <MudText Typo="Typo.overline" Style="color:var(--mud-palette-secondary); letter-spacing:1.5px;">
+                        Title Parse & Fuzzy Match
+                    </MudText>
+                    <MudSimpleTable Dense="true" Hover="false" Class="mt-2" Style="font-size:0.82rem;">
+                        <tbody>
+                            <tr><td style="@L">Card Name</td><td>@product.ParsedCardName</td></tr>
+                            <tr><td style="@L">Set (from title)</td><td>@(product.ParsedSetName ?? "—")</td></tr>
+                            <tr><td style="@L">Art Variant</td><td>@(product.ParsedArtVariant ?? "—")</td></tr>
+                            <tr><td style="@L">Recognised Art?</td>
+                                <td style="@(product.IsRecognisedArtVariant ? "color:#66bb6a;" : "color:rgba(255,255,255,0.35);")">
+                                    @(product.IsRecognisedArtVariant ? "Yes (strict)" : "No (relaxed)")
+                                </td></tr>
+                            <tr><td style="@L">Resolved Set Code</td>
+                                <td style="@(product.ResolvedSetCode != null ? "color:#ffa726;" : "color:rgba(255,255,255,0.3);")">
+                                    @(product.ResolvedSetCode ?? "could not resolve")
+                                </td></tr>
+                            <tr><td style="@L">NM Price (normal)</td>
+                                <td style="color:#81c784;">@(product.NmNormalPrice.HasValue ? $"AU${product.NmNormalPrice:F2}" : "—")</td></tr>
+                            <tr><td style="@L">NM Price (foil)</td>
+                                <td style="color:#81c784;">@(product.NmFoilPrice.HasValue ? $"AU${product.NmFoilPrice:F2}" : "—")</td></tr>
+                            <tr><td style="@L">Fuzzy Reason</td>
+                                <td style="font-size:0.74rem;color:rgba(255,255,255,0.5);">@product.MatchReason</td></tr>
+                        </tbody>
+                    </MudSimpleTable>
+                </MudItem>
+
+                <!-- SKU Snapshots (shown when SKU matching succeeded) -->
+                @if (product.SkuSnapshots.Any())
+                {
+                    <MudItem xs="12">
+                        <MudText Typo="Typo.overline" Style="color:#66bb6a; letter-spacing:1.5px;">
+                            SKU Exact Match — Snapshots to Write (@product.SkuSnapshots.Count)
+                        </MudText>
+                        <MudSimpleTable Dense="true" Hover="true" Class="mt-2" Style="font-size:0.8rem;">
+                            <thead>
+                                <tr>
+                                    <th>SKU Used</th>
+                                    <th>Set</th>
+                                    <th>#</th>
+                                    <th>Frame</th>
+                                    <th>Border</th>
+                                    <th>Price Type</th>
+                                    <th>Price (AUD)</th>
+                                    <th>UUID</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var snap in product.SkuSnapshots)
+                                {
+                                    <tr>
+                                        <td style="font-family:monospace;font-size:0.75rem;color:#ffa726;">@snap.SkuUsed</td>
+                                        <td>[@snap.SetCode]</td>
+                                        <td style="font-weight:700;color:#ffa726;">@(snap.CollectorNumber ?? "—")</td>
+                                        <td style="color:rgba(255,255,255,0.5);">@(snap.FrameEffects ?? "—")</td>
+                                        <td style="color:rgba(255,255,255,0.5);">@(snap.BorderColor ?? "black")</td>
+                                        <td>
+                                            <MudChip T="string" Size="Size.Small"
+                                                     Color="@(snap.PriceType == "retail_foil" ? Color.Info : snap.PriceType == "retail_etched" ? Color.Warning : Color.Default)">
+                                                @snap.PriceType
+                                            </MudChip>
+                                        </td>
+                                        <td style="color:#81c784;font-weight:600;">$@snap.Price.ToString("F2")</td>
+                                        <td style="font-family:monospace;font-size:0.7rem;color:rgba(255,255,255,0.35);">@snap.Uuid</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </MudSimpleTable>
+                    </MudItem>
+                }
+
+                <!-- Matched card info (shown when any match found) -->
+                @if (product.Matched)
+                {
+                    <MudItem xs="12">
+                        <MudText Typo="Typo.overline" Class="mt-1"
+                                 Style="@($"color:{(product.MatchMethod == "SKU" ? "#66bb6a" : "#ffa726")}; letter-spacing:1.5px;")">
+                            MTGJSON Card (Representative)
+                        </MudText>
+                        <MudSimpleTable Dense="true" Hover="false" Class="mt-2" Style="font-size:0.82rem;">
+                            <tbody>
+                                <tr><td style="@L">UUID</td>
+                                    <td style="font-family:monospace;font-size:0.74rem;">@product.MatchedUuid</td></tr>
+                                <tr><td style="@L">Set</td>
+                                    <td>[@product.MatchedSetCode] @product.MatchedSetName</td></tr>
+                                <tr><td style="@L">Collector #</td>
+                                    <td style="font-weight:700;color:#ffa726;">@(product.MatchedCollectorNumber ?? "—")</td></tr>
+                                <tr><td style="@L">Frame Effects</td>
+                                    <td style="@(product.MatchedFrameEffects != null ? "color:#ffa726;" : "color:rgba(255,255,255,0.3);")">
+                                        @(product.MatchedFrameEffects ?? "none (standard)")
+                                    </td></tr>
+                                <tr><td style="@L">Border Color</td>
+                                    <td>@(product.MatchedBorderColor ?? "black (default)")</td></tr>
+                                <tr><td style="@L">Finishes</td>
+                                    <td>
+                                        @if (product.MatchedHasNonFoil) { <MudChip T="string" Size="Size.Small" Color="Color.Default">NonFoil</MudChip> }
+                                        @if (product.MatchedHasFoil)    { <MudChip T="string" Size="Size.Small" Color="Color.Info">Foil</MudChip> }
+                                        @if (product.MatchedHasEtched)  { <MudChip T="string" Size="Size.Small" Color="Color.Warning">Etched</MudChip> }
+                                    </td></tr>
+                            </tbody>
+                        </MudSimpleTable>
+                    </MudItem>
+                }
+                else if (!product.Matched)
+                {
+                    <MudItem xs="12">
+                        <MudAlert Severity="Severity.Error" Dense="true">@product.MatchReason</MudAlert>
+                    </MudItem>
+                }
+
+                <!-- All Variants -->
+                <MudItem xs="12">
+                    <MudText Typo="Typo.overline" Style="color:rgba(255,255,255,0.4); letter-spacing:1.5px;">
+                        All Variants (@product.Variants.Count) — SKU Parse Details
+                    </MudText>
+                    <div style="overflow-x:auto;" class="mt-2">
+                        <table style="width:100%;border-collapse:collapse;font-size:0.78rem;">
+                            <thead>
+                                <tr style="color:rgba(255,255,255,0.45);text-align:left;">
+                                    <th style="padding:4px 10px;">Title</th>
+                                    <th style="padding:4px 10px;">Cond</th>
+                                    <th style="padding:4px 10px;">Price</th>
+                                    <th style="padding:4px 10px;">Stock</th>
+                                    <th style="padding:4px 10px;">SKU</th>
+                                    <th style="padding:4px 10px;">Set</th>
+                                    <th style="padding:4px 10px;"># (Collector)</th>
+                                    <th style="padding:4px 10px;">Lang</th>
+                                    <th style="padding:4px 10px;">Finish</th>
+                                    <th style="padding:4px 10px;">Price Type</th>
+                                    <th style="padding:4px 10px;">SKU UUID</th>
+                                    <th style="padding:4px 10px;">Barcode</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var v in product.Variants)
+                                {
+                                    var rowStyle = v.Available ? "" : "opacity:0.4;";
+                                    var isNmSku  = v.SkuResolvedUuid is not null && v.ParsedCondition == "NM";
+                                    var rowBg    = isNmSku ? "background:rgba(102,187,106,0.08);" : "";
+                                    <tr style="@rowStyle @rowBg">
+                                        <td style="padding:4px 10px;">@v.Title</td>
+                                        <td style="padding:4px 10px;">
+                                            @if (v.ParsedCondition != null)
+                                            {
+                                                <MudChip T="string" Size="Size.Small" Color="@ConditionColor(v.ParsedCondition)">
+                                                    @v.ParsedCondition@(v.IsFoil ? "✦" : "")
+                                                </MudChip>
+                                            }
+                                            else { <span style="color:rgba(255,255,255,0.3);">?</span> }
+                                        </td>
+                                        <td style="padding:4px 10px;color:#81c784;font-weight:600;">@FormatPrice(v.Price)</td>
+                                        <td style="padding:4px 10px;">@(v.Available ? "✓" : "✗")</td>
+                                        <td style="padding:4px 10px;font-family:monospace;font-size:0.72rem;color:#ffa726;">
+                                            @(v.Sku is { Length: > 0 } ? v.Sku : "—")
+                                        </td>
+                                        <td style="padding:4px 10px;font-family:monospace;">@(v.SkuSetCode ?? "—")</td>
+                                        <td style="padding:4px 10px;font-weight:700;color:#ffa726;">@(v.SkuCollectorNumber ?? "—")</td>
+                                        <td style="padding:4px 10px;color:rgba(255,255,255,0.5);">@(v.SkuLanguage ?? "—")</td>
+                                        <td style="padding:4px 10px;">
+                                            @if (v.SkuFinish != null)
+                                            {
+                                                <MudChip T="string" Size="Size.Small"
+                                                         Color="@(v.SkuFinish == "F" ? Color.Info : v.SkuFinish == "E" ? Color.Warning : Color.Default)">
+                                                    @v.SkuFinish
+                                                </MudChip>
+                                            }
+                                            else { <span style="color:rgba(255,255,255,0.3);">—</span> }
+                                        </td>
+                                        <td style="padding:4px 10px;font-size:0.72rem;color:rgba(255,255,255,0.6);">
+                                            @(v.SkuPriceType ?? "—")
+                                        </td>
+                                        <td style="padding:4px 10px;font-family:monospace;font-size:0.68rem;">
+                                            @if (v.SkuResolvedUuid is { Length: > 0 })
+                                            {
+                                                <span style="color:#66bb6a;">@v.SkuResolvedUuid[..8]…</span>
+                                            }
+                                            else { <span style="color:rgba(255,255,255,0.2);">not found</span> }
+                                        </td>
+                                        <td style="padding:4px 10px;font-family:monospace;font-size:0.68rem;color:rgba(255,255,255,0.3);">
+                                            @(v.Barcode is { Length: > 0 } ? v.Barcode : "—")
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </MudItem>
+
+            </MudGrid>
+        </MudPaper>
+    }
+}
+
+@code {
+    private const string L = "color:rgba(255,255,255,0.45);white-space:nowrap;padding-right:12px;width:150px;";
+
+    private string _searchTerm = "the one ring";
+    private bool _loading;
+    private GoodGamesInspectResponse? _result;
+
+    private async Task OnKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter") await RunInspect();
+    }
+
+    private async Task RunInspect()
+    {
+        if (string.IsNullOrWhiteSpace(_searchTerm)) return;
+        _loading = true;
+        _result  = null;
+        StateHasChanged();
+
+        try
+        {
+            _result = await Api.InspectGoodGamesAsync(_searchTerm.Trim());
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"Error: {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private static Color ConditionColor(string? cond) => cond switch
+    {
+        "NM"  => Color.Success,
+        "LP"  => Color.Info,
+        "MP"  => Color.Warning,
+        "HP"  => Color.Error,
+        "DMG" => Color.Dark,
+        _     => Color.Default
+    };
+
+    private static string FormatPrice(string raw)
+    {
+        if (decimal.TryParse(raw, System.Globalization.NumberStyles.Any,
+                System.Globalization.CultureInfo.InvariantCulture, out var p) && p > 0)
+            return $"${p:F2}";
+        return "—";
+    }
+}

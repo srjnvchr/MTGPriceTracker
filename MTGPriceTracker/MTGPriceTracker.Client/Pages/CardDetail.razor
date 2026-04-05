@@ -48,53 +48,31 @@ else
 
                     @if (!string.IsNullOrWhiteSpace(_card.ManaCost))
                     {
-                        <MudText Typo="Typo.body2" Class="mb-1">
-                            <strong>Mana Cost:</strong> @_card.ManaCost
-                        </MudText>
+                        <MudText Typo="Typo.body2" Class="mb-1"><strong>Mana Cost:</strong> @_card.ManaCost</MudText>
                     }
-
-                    <MudText Typo="Typo.body2" Class="mb-1">
-                        <strong>Type:</strong> @_card.Type
-                    </MudText>
-
-                    <MudText Typo="Typo.body2" Class="mb-1">
-                        <strong>Set:</strong> @_card.SetName (@_card.SetCode)
-                    </MudText>
+                    <MudText Typo="Typo.body2" Class="mb-1"><strong>Type:</strong> @_card.Type</MudText>
+                    <MudText Typo="Typo.body2" Class="mb-1"><strong>Set:</strong> @_card.SetName (@_card.SetCode)</MudText>
 
                     @if (!string.IsNullOrWhiteSpace(_card.Power) && !string.IsNullOrWhiteSpace(_card.Toughness))
                     {
-                        <MudText Typo="Typo.body2" Class="mb-1">
-                            <strong>P/T:</strong> @_card.Power / @_card.Toughness
-                        </MudText>
+                        <MudText Typo="Typo.body2" Class="mb-1"><strong>P/T:</strong> @_card.Power / @_card.Toughness</MudText>
                     }
-
                     @if (!string.IsNullOrWhiteSpace(_card.Loyalty))
                     {
-                        <MudText Typo="Typo.body2" Class="mb-1">
-                            <strong>Loyalty:</strong> @_card.Loyalty
-                        </MudText>
+                        <MudText Typo="Typo.body2" Class="mb-1"><strong>Loyalty:</strong> @_card.Loyalty</MudText>
                     }
-
                     @if (!string.IsNullOrWhiteSpace(_card.Text))
                     {
                         <MudDivider Class="my-2" />
-                        <MudText Typo="Typo.body2" Style="white-space:pre-line; color:rgba(255,255,255,0.8);">
-                            @_card.Text
-                        </MudText>
+                        <MudText Typo="Typo.body2" Style="white-space:pre-line; color:rgba(255,255,255,0.8);">@_card.Text</MudText>
                     }
-
                     @if (!string.IsNullOrWhiteSpace(_card.FlavorText))
                     {
-                        <MudText Typo="Typo.body2" Class="mt-2" Style="font-style:italic; color:rgba(255,255,255,0.4);">
-                            @_card.FlavorText
-                        </MudText>
+                        <MudText Typo="Typo.body2" Class="mt-2" Style="font-style:italic; color:rgba(255,255,255,0.4);">@_card.FlavorText</MudText>
                     }
-
                     @if (!string.IsNullOrWhiteSpace(_card.Artist))
                     {
-                        <MudText Typo="Typo.caption" Class="mt-2" Style="color:rgba(255,255,255,0.3);">
-                            Illus. @_card.Artist
-                        </MudText>
+                        <MudText Typo="Typo.caption" Class="mt-2" Style="color:rgba(255,255,255,0.3);">Illus. @_card.Artist</MudText>
                     }
                 </div>
             </MudPaper>
@@ -103,18 +81,17 @@ else
         <!-- Right: Price data -->
         <MudItem xs="12" md="8" lg="9">
 
-            <!-- Latest prices summary -->
+            <!-- Latest prices summary tiles -->
             <MudText Typo="Typo.h6" Class="mb-3" Style="font-weight:600;">Current Prices</MudText>
             <MudGrid Spacing="2" Class="mb-6">
-                @foreach (var history in _priceHistories.Where(h => h.LatestPrice.HasValue))
+                @foreach (var history in _visibleHistories.Where(h => h.LatestPrice.HasValue))
                 {
                     <MudItem xs="6" sm="4" md="3">
-                        <MudPaper Elevation="2" Class="pa-3 text-center" Style="background:var(--mud-palette-surface); border:1px solid rgba(255,255,255,0.08); border-radius:10px;">
-                            <MudText Typo="Typo.caption" Style="color:rgba(255,255,255,0.5);">
-                                @history.DisplayName
-                            </MudText>
+                        <MudPaper Elevation="2" Class="pa-3 text-center"
+                                  Style="background:var(--mud-palette-surface); border:1px solid rgba(255,255,255,0.08); border-radius:10px;">
+                            <MudText Typo="Typo.caption" Style="color:rgba(255,255,255,0.5);">@history.DisplayName</MudText>
                             <MudText Typo="Typo.h6" Style="color:#81c784; font-weight:700;">
-                                @FormatCurrencySymbol(history.Currency)@history.LatestPrice?.ToString("F2")
+                                @CurrencySymbol(@_displayCurrency)@ConvertPrice(history.LatestPrice!.Value, history.Currency, _displayCurrency).ToString("F2")
                             </MudText>
                             @if (history.PriceChangePercent.HasValue)
                             {
@@ -128,16 +105,26 @@ else
                 }
             </MudGrid>
 
-            <!-- Time range selector -->
-            <div class="d-flex align-center gap-3 mb-4">
+            <!-- Chart controls -->
+            <div class="d-flex align-center flex-wrap gap-3 mb-4">
                 <MudText Typo="Typo.h6" Style="font-weight:600;">Price History</MudText>
                 <MudSpacer />
+
+                <!-- Currency toggle -->
                 <MudButtonGroup Variant="Variant.Outlined" Size="MudBlazor.Size.Small">
-                    @foreach (var days in new[] { 7, 30, 90, 180, 365 })
+                    <MudButton Color="@(_displayCurrency == "USD" ? MudBlazor.Color.Primary : MudBlazor.Color.Default)"
+                               OnClick='() => _displayCurrency = "USD"'>$ USD</MudButton>
+                    <MudButton Color="@(_displayCurrency == "AUD" ? MudBlazor.Color.Primary : MudBlazor.Color.Default)"
+                               OnClick='() => _displayCurrency = "AUD"'>A$ AUD</MudButton>
+                </MudButtonGroup>
+
+                <!-- Time range -->
+                <MudButtonGroup Variant="Variant.Outlined" Size="MudBlazor.Size.Small">
+                    @foreach (var days in new[] { 7, 30, 90 })
                     {
-                        <MudButton Color="@(_selectedDays == days ? MudBlazor.Color.Primary : MudBlazor.Color.Default)"
+                        <MudButton Color="@(_selectedDays == days ? MudBlazor.Color.Secondary : MudBlazor.Color.Default)"
                                    OnClick="() => ChangeDays(days)">
-                            @(days == 365 ? "1Y" : days == 180 ? "6M" : days == 90 ? "3M" : days == 30 ? "1M" : "1W")
+                            @(days == 90 ? "3M" : days == 30 ? "1M" : "1W")
                         </MudButton>
                     }
                 </MudButtonGroup>
@@ -149,7 +136,7 @@ else
                     <MudProgressCircular Color="MudBlazor.Color.Primary" Indeterminate="true" />
                 </div>
             }
-            else if (!_priceHistories.Any(h => h.PricePoints.Count > 0))
+            else if (!_visibleHistories.Any(h => h.PricePoints.Count > 0))
             {
                 <MudAlert Severity="Severity.Info">
                     No price history available yet. Run a price sync to populate data.
@@ -157,33 +144,30 @@ else
             }
             else
             {
-                <!-- Price chart per vendor -->
-                @foreach (var history in _priceHistories.Where(h => h.PricePoints.Count > 0))
-                {
-                    <MudPaper Elevation="2" Class="pa-4 mb-4" Style="background:var(--mud-palette-surface); border-radius:12px;">
-                        <div class="d-flex align-center mb-3">
-                            <MudText Typo="Typo.subtitle1" Style="font-weight:600;">@history.DisplayName</MudText>
-                            <MudSpacer />
-                            @if (history.LatestPrice.HasValue)
-                            {
-                                <MudChip T="string" Color="MudBlazor.Color.Success" Size="MudBlazor.Size.Small"
-                                         Text="@($"{FormatCurrencySymbol(history.Currency)}{history.LatestPrice:F2}")" />
-                            }
-                        </div>
-
-                        <ApexChart TItem="PricePointDto"
-                                   Options="GetChartOptions(history)"
-                                   Height="220">
+                <!-- Single combined chart -->
+                <MudPaper Elevation="2" Class="pa-4 mb-3" Style="background:var(--mud-palette-surface); border-radius:12px;">
+                    <ApexChart TItem="PricePointDto"
+                               Options="_chartOptions"
+                               Height="380">
+                        @foreach (var history in _visibleHistories.Where(h => h.PricePoints.Count > 0))
+                        {
+                            var h = history; @* capture for lambda *@
                             <ApexPointSeries TItem="PricePointDto"
-                                             Items="history.PricePoints"
-                                             Name="@history.DisplayName"
+                                             Items="h.PricePoints"
+                                             Name="@h.DisplayName"
                                              SeriesType="SeriesType.Line"
-                                             XValue="@(p => p.Date.ToUnixTimeMilliseconds())"
-                                             YValue="@(p => (decimal)p.Price)"
+                                             XValue="@(p => ((DateTimeOffset)p.Date).ToUnixTimeMilliseconds())"
+                                             YValue="@(p => ConvertPrice(p.Price, h.Currency, _displayCurrency))"
+                                             Color="@GetSeriesColor(h)"
                                              OrderBy="p => p.X" />
-                        </ApexChart>
-                    </MudPaper>
-                }
+                        }
+                    </ApexChart>
+                </MudPaper>
+
+                <MudText Typo="Typo.caption" Style="color:rgba(255,255,255,0.3);">
+                    Exchange rates are approximate (USD 1 = AUD @UsdToAud.ToString("F2"), EUR 1 = AUD @EurToAud.ToString("F2")).
+                    Click a series in the legend to show/hide it.
+                </MudText>
             }
         </MudItem>
     </MudGrid>
@@ -192,23 +176,37 @@ else
 @code {
     [Parameter] public string Uuid { get; set; } = string.Empty;
 
+    // ── Approximate exchange rates (updated periodically in code) ──────────────
+    private const decimal UsdToAud = 1.55m;
+    private const decimal EurToAud = 1.70m;
+    private const decimal AudToUsd = 0.645m;
+    private const decimal EurToUsd = 1.08m;
+
     private CardDetailDto? _card;
     private List<VendorPriceHistoryDto> _priceHistories = new();
-    private bool _loading = true;
+    private bool _loading      = true;
     private bool _loadingPrices;
-    private int _selectedDays = 90;
+    private int  _selectedDays = 90;
+    private string _displayCurrency = "AUD"; // default to AUD (local)
+
+    private ApexChartOptions<PricePointDto> _chartOptions = BuildChartOptions();
+
+    // Only show retail price types in the chart — buylist is hidden to reduce noise.
+    // Good Games conditions (NM/LP etc.) are always included.
+    private IEnumerable<VendorPriceHistoryDto> _visibleHistories =>
+        _priceHistories.Where(h =>
+            h.Vendor == "goodgames" ||
+            h.PriceType == "retail" ||
+            h.PriceType == "retail_foil");
 
     private List<BreadcrumbItem> _breadcrumbs => new()
     {
-        new BreadcrumbItem("Home", href: "/"),
+        new BreadcrumbItem("Home",  href: "/"),
         new BreadcrumbItem("Cards", href: "/cards"),
         new BreadcrumbItem(_card?.Name ?? "...", href: null, disabled: true)
     };
 
-    protected override async Task OnInitializedAsync()
-    {
-        await LoadCardAsync();
-    }
+    protected override async Task OnInitializedAsync() => await LoadCardAsync();
 
     private async Task LoadCardAsync()
     {
@@ -216,8 +214,7 @@ else
         try
         {
             _card = await Api.GetCardAsync(Uuid);
-            if (_card != null)
-                await LoadPricesAsync();
+            if (_card != null) await LoadPricesAsync();
         }
         catch (Exception ex)
         {
@@ -273,94 +270,115 @@ else
         catch (Exception ex)
         {
             Snackbar.Add($"Error updating favorites: {ex.Message}", Severity.Error);
-            _card.IsFavorite = !_card.IsFavorite; // revert
+            _card.IsFavorite = !_card.IsFavorite;
         }
     }
 
-    private static ApexChartOptions<PricePointDto> GetChartOptions(VendorPriceHistoryDto history)
+    // ── Currency conversion ───────────────────────────────────────────────────
+
+    private static decimal ConvertPrice(decimal price, string fromCurrency, string toCurrency)
     {
-        return new ApexChartOptions<PricePointDto>
+        if (fromCurrency == toCurrency) return price;
+
+        // Normalise to USD first, then convert to target
+        var inUsd = fromCurrency switch
         {
-            Chart = new Chart
-            {
-                Background = "transparent",
-                ForeColor = "rgba(255,255,255,0.7)",
-                Toolbar = new Toolbar { Show = false },
-                Zoom = new Zoom { Enabled = false },
-                Animations = new Animations { Enabled = true }
-            },
-            Theme = new Theme { Mode = Mode.Dark },
-            Stroke = new Stroke { Curve = Curve.Smooth, Width = 2 },
-            Fill = new Fill
-            {
-                Type = FillType.Gradient,
-                Gradient = new FillGradient
-                {
-                    ShadeIntensity = 1,
-                    OpacityFrom = 0.4,
-                    OpacityTo = 0.05,
-                    Stops = new List<double> { 0, 100 }
-                }
-            },
-            Xaxis = new XAxis
-            {
-                Type = XAxisType.Datetime,
-                Labels = new XAxisLabels
-                {
-                    Style = new AxisLabelStyle { Colors = "rgba(255,255,255,0.5)", FontSize = "11px" }
-                },
-                AxisBorder = new AxisBorder { Show = false },
-                AxisTicks = new AxisTicks { Show = false }
-            },
-            Yaxis =
-            [
-                new YAxis
-                {
-                    Labels = new YAxisLabels
-                    {
-                        Style = new AxisLabelStyle { Colors = "rgba(255,255,255,0.5)", FontSize = "11px" },
-                        Formatter = $"function(val) {{ return '{GetCurrencySymbol(history.Currency)}' + val.toFixed(2); }}"
-                    }
-                }
-            ],
-            Grid = new Grid
-            {
-                BorderColor = "rgba(255,255,255,0.06)",
-                StrokeDashArray = 3,
-                Xaxis = new GridXAxis { Lines = new Lines { Show = false } }
-            },
-            Tooltip = new Tooltip
-            {
-                Theme = Mode.Dark,
-                X = new TooltipX { Format = "dd MMM yyyy" }
-            },
-            Colors = new List<string> { GetVendorColor(history.Vendor) },
-            Markers = new Markers { Size = 0 },
-            NoData = new NoData { Text = "No price data" }
+            "EUR" => price * EurToUsd,
+            "AUD" => price * AudToUsd,
+            _     => price  // already USD
+        };
+
+        return toCurrency switch
+        {
+            "AUD" => inUsd * UsdToAud,
+            "EUR" => inUsd / EurToUsd,
+            _     => inUsd  // USD
         };
     }
 
-    private static string GetVendorColor(string vendor) => vendor switch
-    {
-        "tcgplayer" => "#2196f3",
-        "cardkingdom" => "#ff9800",
-        "cardmarket" => "#4caf50",
-        "goodgames" => "#e91e63",
-        _ => "#9c27b0"
-    };
-
-    private static string GetCurrencySymbol(string currency) => currency switch
+    private static string CurrencySymbol(string currency) => currency switch
     {
         "EUR" => "€",
         "AUD" => "A$",
-        _ => "$"
+        _     => "$"
     };
 
-    private static string FormatCurrencySymbol(string currency) => currency switch
+    // ── Chart helpers ─────────────────────────────────────────────────────────
+
+    // Vendor base colours — conditions/finishes get the same hue, chart handles opacity
+    private static readonly Dictionary<string, string> VendorColors = new()
     {
-        "EUR" => "€",
-        "AUD" => "A$",
-        _ => "$"
+        ["tcgplayer"]   = "#2196f3",
+        ["cardkingdom"] = "#ff9800",
+        ["cardmarket"]  = "#4caf50",
+        ["goodgames"]   = "#e91e63",
+    };
+
+    // Foil variants get a lighter tint of the same vendor colour
+    private static string GetSeriesColor(VendorPriceHistoryDto h)
+    {
+        var base_ = VendorColors.GetValueOrDefault(h.Vendor, "#9c27b0");
+        // Shift hue slightly for foil / different conditions using CSS opacity hack via hex alpha
+        if (h.PriceType?.Contains("foil", StringComparison.OrdinalIgnoreCase) == true)
+            return base_ + "aa"; // ~67% opacity
+        if (h.Condition is "LP" or "MP" or "HP")
+            return base_ + "bb";
+        return base_;
+    }
+
+    private static ApexChartOptions<PricePointDto> BuildChartOptions() => new()
+    {
+        Chart = new Chart
+        {
+            Background  = "transparent",
+            ForeColor   = "rgba(255,255,255,0.7)",
+            Toolbar     = new Toolbar { Show = false },
+            Zoom        = new Zoom { Enabled = true, Type = AxisType.X },
+            Animations  = new Animations { Enabled = true }
+        },
+        Theme  = new Theme { Mode = Mode.Dark },
+        Stroke = new Stroke { Curve = Curve.Smooth, Width = 2 },
+        Legend = new Legend
+        {
+            Show     = true,
+            Position = LegendPosition.Bottom,
+            Labels   = new LegendLabels { Colors = "rgba(255,255,255,0.6)" }
+        },
+        Xaxis = new XAxis
+        {
+            Type   = XAxisType.Datetime,
+            Labels = new XAxisLabels
+            {
+                Style = new AxisLabelStyle { Colors = "rgba(255,255,255,0.5)", FontSize = "11px" }
+            },
+            AxisBorder = new AxisBorder { Show = false },
+            AxisTicks  = new AxisTicks  { Show = false }
+        },
+        Yaxis =
+        [
+            new YAxis
+            {
+                Labels = new YAxisLabels
+                {
+                    Style     = new AxisLabelStyle { Colors = "rgba(255,255,255,0.5)", FontSize = "11px" },
+                    Formatter = "function(val) { return val == null ? '' : val.toFixed(2); }"
+                }
+            }
+        ],
+        Grid = new Grid
+        {
+            BorderColor    = "rgba(255,255,255,0.06)",
+            StrokeDashArray = 3,
+            Xaxis          = new GridXAxis { Lines = new Lines { Show = false } }
+        },
+        Tooltip = new Tooltip
+        {
+            Theme = Mode.Dark,
+            X     = new TooltipX { Format = "dd MMM yyyy" },
+            Shared = true
+        },
+        Markers = new Markers { Size = 0 },
+        NoData  = new NoData  { Text = "No price data" }
     };
 
     private static string GetRarityStyle(string rarity) => rarity.ToLower() switch

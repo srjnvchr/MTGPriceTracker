@@ -1,0 +1,2 @@
+/* Styles moved to wwwroot/css/app.css (global) to avoid Blazor CSS
+   isolation scoping issues with MudBlazor child component elements. */

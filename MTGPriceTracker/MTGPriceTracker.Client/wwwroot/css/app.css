@@ -101,3 +101,170 @@ a, .btn-link {
 code {
     color: #c02d76;
 }
+
+/* ═══════════════════════════════════════════════════════════
+   MTG Card Tile  —  global styles (not isolated)
+   Aspect ratio: 63 × 88 mm  (≈ 5 : 7)
+   Corner radius: 4.55% h / 3.5% v — matches physical card cut.
+
+   These rules live in app.css (not a .razor.css isolated file)
+   so that selectors reach into MudBlazor child components such
+   as MudIconButton, which render their own DOM without the
+   Blazor CSS-isolation scoped attribute.
+═══════════════════════════════════════════════════════════ */
+
+.mtg-tile {
+    position: relative;
+    width: 160px;
+    height: 223px;   /* 160 × 88/63 = 223px — exact MTG portrait ratio */
+    flex-shrink: 0;  /* never compress below declared size */
+    cursor: pointer;
+    border-radius: 8px;
+    overflow: hidden;
+    isolation: isolate;
+    box-shadow:
+        0  2px  4px  rgba(0, 0, 0, 0.55),
+        0  8px  20px rgba(0, 0, 0, 0.55),
+        0 22px  42px rgba(0, 0, 0, 0.35);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    user-select: none;
+    outline: none;
+}
+
+.mtg-tile:hover,
+.mtg-tile:focus-visible {
+    transform: translateY(-8px) scale(1.04);
+    box-shadow:
+        0  4px  6px  rgba(0, 0, 0, 0.55),
+        0 14px  28px rgba(0, 0, 0, 0.65),
+        0 34px  56px rgba(0, 0, 0, 0.45),
+        0 48px  80px rgba(0, 0, 0, 0.20);
+}
+
+/* ── Full-bleed card image ──────────────────────────────── */
+
+.mtg-tile__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    pointer-events: none;
+}
+
+/* ── Placeholder (no Scryfall ID) ───────────────────────── */
+
+.mtg-tile__placeholder {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(145deg, #1a1a3e, #2d1b4e, #1a1a2e);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+}
+
+.mtg-tile__placeholder-icon {
+    font-size: 2.5rem;
+    opacity: 0.2;
+}
+
+/* ── Matte finish (non-foil) ────────────────────────────── */
+
+.mtg-tile__matte {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iNTAwIiBoZWlnaHQ9IjUwMCI+CjxmaWx0ZXIgaWQ9Im4iPgo8ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iLjciIG51bU9jdGF2ZXM9IjEwIiBzdGl0Y2hUaWxlcz0ic3RpdGNoIj48L2ZlVHVyYnVsZW5jZT0KPC9maWx0ZXI+CjxyZWN0IHdpZHRoPSI1MDAiIGhlaWdodD0iNTAwIiBmaWxsPSIjMDAwIj48L3JlY3Q+CjxyZWN0IHdpZHRoPSI1MDAiIGhlaWdodD0iNTAwIiBmaWx0ZXI9InVybCgjbikiIG9wYWNpdHk9IjAuMyI+PC9yZWN0Pgo8L3N2Zz4=");
+    background-size: 200px 200px;
+    background-repeat: repeat;
+    opacity: 0.06;
+    mix-blend-mode: overlay;
+}
+
+/* ── Foil finish ────────────────────────────────────────── */
+
+.mtg-tile__foil {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+        repeating-linear-gradient(
+            125deg,
+            rgb(255, 119, 115)       0%,
+            rgba(255, 237,  95, 1)  10%,
+            rgba(168, 255,  95, 1)  20%,
+            rgba(131, 255, 247, 1)  30%,
+            rgba(120, 148, 255, 1)  40%,
+            rgb(216, 117, 255)      50%,
+            rgb(255, 119, 115)      60%
+        ),
+        url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iNTAwIiBoZWlnaHQ9IjUwMCI+CjxmaWx0ZXIgaWQ9Im4iPgo8ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iLjciIG51bU9jdGF2ZXM9IjEwIiBzdGl0Y2hUaWxlcz0ic3RpdGNoIj48L2ZlVHVyYnVsZW5jZT4KPC9maWx0ZXI+CjxyZWN0IHdpZHRoPSI1MDAiIGhlaWdodD0iNTAwIiBmaWxsPSIjMDAwIj48L3JlY3Q+CjxyZWN0IHdpZHRoPSI1MDAiIGhlaWdodD0iNTAwIiBmaWx0ZXI9InVybCgjbikiIG9wYWNpdHk9IjAuMyI+PC9yZWN0Pgo8L3N2Zz4=");
+    background-size: 400% 400%, 200px 200px;
+    background-repeat: no-repeat, repeat;
+    mix-blend-mode: screen;
+    opacity: 0.22;
+    animation: mtg-foil-cycle 7s linear infinite;
+}
+
+.mtg-tile:hover .mtg-tile__foil {
+    opacity: 0.34;
+    animation-duration: 4s;
+}
+
+@keyframes mtg-foil-cycle {
+    0%   { background-position: 0%   0%,   center; opacity: 0.18; }
+    25%  { background-position: 50%  25%,  center; opacity: 0.26; }
+    50%  { background-position: 100% 50%,  center; opacity: 0.22; }
+    75%  { background-position: 50%  75%,  center; opacity: 0.28; }
+    100% { background-position: 0%   100%, center; opacity: 0.18; }
+}
+
+/* ── Card name on hover ─────────────────────────────────── */
+
+.mtg-tile__name {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 32px 10px 9px;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.88));
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+}
+
+.mtg-tile:hover .mtg-tile__name {
+    opacity: 1;
+}
+
+/* ── Favourite button ───────────────────────────────────── */
+
+.mtg-tile__fav {
+    position: absolute !important;
+    top: 6px !important;
+    right: 6px !important;
+    z-index: 2;
+    opacity: 0;
+    transition: opacity 0.15s ease, transform 0.15s ease;
+    transform: scale(0.85);
+}
+
+.mtg-tile:hover .mtg-tile__fav {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.mtg-tile.is-favorited .mtg-tile__fav {
+    opacity: 1;
+    transform: scale(1);
+}

@@ -80,6 +80,30 @@ public class ApiService
         return await response.Content.ReadFromJsonAsync<SyncTriggerResponse>();
     }
 
+    public async Task<SyncTriggerResponse?> TriggerGoodGamesSyncAsync()
+    {
+        var response = await _http.PostAsync("api/sync/trigger-goodgames", null);
+        return await response.Content.ReadFromJsonAsync<SyncTriggerResponse>();
+    }
+
+    public async Task<SyncTriggerResponse?> TriggerHistoryImportAsync()
+    {
+        var response = await _http.PostAsync("api/sync/import-history", null);
+        return await response.Content.ReadFromJsonAsync<SyncTriggerResponse>();
+    }
+
+    public async Task<GoodGamesInspectResponse?> InspectGoodGamesAsync(string searchTerm)
+    {
+        var url = $"api/sync/inspect-goodgames?search={Uri.EscapeDataString(searchTerm)}";
+        return await _http.GetFromJsonAsync<GoodGamesInspectResponse>(url);
+    }
+
+    public async Task<SyncTriggerResponse?> ClearVendorPricesAsync(string vendor)
+    {
+        var response = await _http.DeleteAsync($"api/sync/prices/{Uri.EscapeDataString(vendor)}");
+        return await response.Content.ReadFromJsonAsync<SyncTriggerResponse>();
+    }
+
     // ── Helpers ──────────────────────────────────────────────────────────────
 
     private static string BuildCardsUrl(CardSearchQuery q)

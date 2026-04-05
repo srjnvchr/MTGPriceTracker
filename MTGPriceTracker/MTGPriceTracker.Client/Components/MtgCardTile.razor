@@ -1,0 +1,58 @@
+@inject NavigationManager Nav
+
+@* <MudCard Class="@TileClass"> *@
+@* </MudCard> *@
+<div class="@TileClass" @onclick="NavigateToCard" role="button" tabindex="0"
+     @onkeydown="@(async e => { if (e.Key == "Enter" || e.Key == " ") NavigateToCard(); })">
+
+
+    @* Card image — fills full tile *@
+    @if (Card.ImageUri is not null)
+    {
+        <img class="mtg-tile__img" src="@Card.ImageUri" alt="@Card.Name" loading="lazy" />
+    }
+    else
+    {
+        <div class="mtg-tile__placeholder">
+            <span class="mtg-tile__placeholder-icon">⚔️</span>
+        </div>
+    }
+
+    @* Finish overlay — foil shimmer or matte grain *@
+    @if (Card.HasFoil)
+    {
+        <div class="mtg-tile__foil" aria-hidden="true"></div>
+    }
+    else
+    {
+        <div class="mtg-tile__matte" aria-hidden="true"></div>
+    }
+
+    @* Card name — visible on hover only *@
+    <div class="mtg-tile__name" aria-hidden="true">@Card.Name</div>
+
+    @* Favourite button — visible on hover or when already favourited *@
+    <MudIconButton Class="mtg-tile__fav"
+                   Icon="@(Card.IsFavorite ? Icons.Material.Filled.Favorite : Icons.Material.Outlined.FavoriteBorder)"
+                   Color="@(Card.IsFavorite ? Color.Error : Color.Default)"
+                   Size="Size.Small"
+                   Style="background:rgba(0,0,0,0.55); min-width:0; padding:4px; border-radius:50%;"
+                   OnClick="ToggleFavorite" />
+</div>
+
+@code {
+    [Parameter, EditorRequired] public CardDto Card { get; set; } = null!;
+    [Parameter] public EventCallback<CardDto> OnFavoriteToggled { get; set; }
+
+    private string TileClass => Card.IsFavorite
+        ? "mtg-tile is-favorited"
+        : "mtg-tile";
+
+    private void NavigateToCard() => Nav.NavigateTo($"/cards/{Card.Uuid}");
+
+    private async Task ToggleFavorite()
+    {
+        Card.IsFavorite = !Card.IsFavorite;
+        await OnFavoriteToggled.InvokeAsync(Card);
+    }
+}
