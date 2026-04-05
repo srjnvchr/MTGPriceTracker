@@ -116,18 +116,25 @@ public class CardRepository : ICardRepository
         {
             if (existing.TryGetValue(card.Uuid, out var dbCard))
             {
-                dbCard.Name = card.Name;
-                dbCard.SetCode = card.SetCode;
-                dbCard.Rarity = card.Rarity;
-                dbCard.Type = card.Type;
-                dbCard.ManaCost = card.ManaCost;
-                dbCard.Text = card.Text;
-                dbCard.ScryfallId = card.ScryfallId;
+                dbCard.Name          = card.Name;
+                dbCard.SetCode       = card.SetCode;
+                dbCard.Rarity        = card.Rarity;
+                dbCard.Type          = card.Type;
+                dbCard.ManaCost      = card.ManaCost;
+                dbCard.Text          = card.Text;
+                dbCard.ScryfallId    = card.ScryfallId;
                 dbCard.ColorIdentity = card.ColorIdentity;
-                dbCard.Artist = card.Artist;
-                dbCard.Power = card.Power;
-                dbCard.Toughness = card.Toughness;
-                dbCard.Loyalty = card.Loyalty;
+                dbCard.Artist        = card.Artist;
+                dbCard.Power         = card.Power;
+                dbCard.Toughness     = card.Toughness;
+                dbCard.Loyalty       = card.Loyalty;
+                // Frame / finish / collector fields — must be kept in sync with MtgJsonService parsing
+                dbCard.FrameEffects     = card.FrameEffects;
+                dbCard.BorderColor      = card.BorderColor;
+                dbCard.HasNonFoil       = card.HasNonFoil;
+                dbCard.HasFoil          = card.HasFoil;
+                dbCard.HasEtched        = card.HasEtched;
+                dbCard.CollectorNumber  = card.CollectorNumber;
             }
             else
             {
@@ -146,5 +153,62 @@ public class CardRepository : ICardRepository
     public async Task<IEnumerable<string>> GetAllUuidsAsync(CancellationToken ct = default)
     {
         return await _db.Cards.Select(c => c.Uuid).ToListAsync(ct);
+    }
+
+    public async Task<Dictionary<string, string>> GetNameToUuidMapAsync(CancellationToken ct = default)
+    {
+        // Single query returning only the columns we need — replaces the N+1 pattern in GoodGamesScraperService.
+        // First UUID wins for duplicate names (same card name printed in multiple sets).
+        var pairs = await _db.Cards
+            .AsNoTracking()
+            .Select(c => new { c.Uuid, c.Name })
+            .ToListAsync(ct);
+
+        var map = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var p in pairs)
+            map.TryAdd(p.Name.ToLowerInvariant(), p.Uuid);
+
+        return map;
+    }
+
+    public async Task<Dictionary<string, List<CardLookupEntry>>> GetCardLookupAsync(CancellationToken ct = default)
+    {
+        // Single JOIN query — returns every printing with the set name and frame data
+        // needed for Good Games product title matching.
+        var rows = await _db.Cards
+            .AsNoTracking()
+            .Include(c => c.Set)
+            .Select(c => new
+            {
+                c.Uuid,
+                c.Name,
+                c.SetCode,
+                SetName         = c.Set.Name,
+                c.FrameEffects,
+                c.BorderColor,
+                c.HasNonFoil,
+                c.HasFoil,
+                c.HasEtched,
+                c.CollectorNumber,
+            })
+            .ToListAsync(ct);
+
+        var lookup = new Dictionary<string, List<CardLookupEntry>>(StringComparer.OrdinalIgnoreCase);
+        foreach (var r in rows)
+        {
+            var key = r.Name.ToLowerInvariant();
+            if (!lookup.TryGetValue(key, out var list))
+            {
+                list = new List<CardLookupEntry>();
+                lookup[key] = list;
+            }
+            list.Add(new CardLookupEntry(
+                r.Uuid, r.SetCode, r.SetName,
+                r.FrameEffects, r.BorderColor,
+                r.HasNonFoil, r.HasFoil, r.HasEtched,
+                r.CollectorNumber));
+        }
+
+        return lookup;
     }
 }

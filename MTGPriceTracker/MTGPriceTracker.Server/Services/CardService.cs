@@ -40,6 +40,8 @@ public class CardService : ICardService
             ManaCost = card.ManaCost,
             ScryfallId = card.ScryfallId,
             IsFavorite = favoriteSet.Contains(card.Uuid),
+            HasFoil = card.HasFoil,
+            HasNonFoil = card.HasNonFoil,
             LatestPrices = latestPricesMap.TryGetValue(card.Uuid, out var prices) ? prices : new Dictionary<string, decimal>()
         }).ToList();
 

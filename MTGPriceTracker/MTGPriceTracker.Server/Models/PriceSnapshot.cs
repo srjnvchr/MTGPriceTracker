@@ -23,6 +23,13 @@ public class PriceSnapshot
     [MaxLength(20)]
     public string PriceType { get; set; } = "retail";
 
+    /// <summary>
+    /// Card condition: NM, LP, MP, HP, DMG, NM_FOIL, LP_FOIL etc.
+    /// Null for MTGJSON-sourced prices (which are condition-agnostic market prices).
+    /// </summary>
+    [MaxLength(20)]
+    public string? Condition { get; set; }
+
     /// <summary>ISO 4217 currency code: USD, EUR, AUD</summary>
     [Required]
     [MaxLength(3)]

@@ -79,7 +79,7 @@ public class PriceSyncBackgroundService : BackgroundService
 
             // Step 2: Good Games
             _syncState.CurrentOperation = "Scraping Good Games prices...";
-            var ggCount = await goodGamesService.ScrapeAllPricesAsync(progress, ct);
+            var ggCount = await goodGamesService.ScrapeAllPricesAsync(progress, ct : ct);
 
             _syncState.LastSyncResult = $"Success — {priceCount} MTGJSON prices, {ggCount} Good Games prices";
             _syncState.CurrentOperation = string.Empty;

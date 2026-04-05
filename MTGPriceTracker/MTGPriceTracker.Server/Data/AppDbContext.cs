@@ -36,7 +36,9 @@ public class AppDbContext : DbContext
         {
             entity.HasIndex(p => p.CardUuid);
             entity.HasIndex(p => p.Date);
-            entity.HasIndex(p => new { p.CardUuid, p.Vendor, p.PriceType, p.Date }).IsUnique();
+            // Condition is nullable — SQLite treats each NULL as distinct, so null rows won't
+            // collide with each other, and non-null rows are uniquely identified by all five columns.
+            entity.HasIndex(p => new { p.CardUuid, p.Vendor, p.PriceType, p.Condition, p.Date }).IsUnique();
 
             entity.HasOne(p => p.Card)
                   .WithMany(c => c.PriceSnapshots)

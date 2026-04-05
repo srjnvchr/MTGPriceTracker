@@ -48,6 +48,49 @@ public class Card
     [MaxLength(100)]
     public string? ColorIdentity { get; set; }
 
+    /// <summary>
+    /// Comma-separated MTGJSON frameEffects values: "showcase", "extendedart", "etched", "fullart", etc.
+    /// Also includes "fullart" when MTGJSON isFullArt=true (basics and special full-art non-basics).
+    /// Used to match Good Games product listings like "(Showcase)" or "(Extended Art)".
+    /// </summary>
+    [MaxLength(200)]
+    public string? FrameEffects { get; set; }
+
+    /// <summary>
+    /// MTGJSON borderColor field. "borderless" for borderless cards; "black" / "white" for standard.
+    /// Borderless is a separate field in MTGJSON, not in frameEffects.
+    /// </summary>
+    [MaxLength(20)]
+    public string? BorderColor { get; set; }
+
+    /// <summary>
+    /// Whether this printing is available in non-foil finish.
+    /// Parsed from MTGJSON finishes[]: contains "nonfoil".
+    /// Defaults to true for cards imported before this field was added.
+    /// </summary>
+    public bool HasNonFoil { get; set; } = true;
+
+    /// <summary>
+    /// Whether this printing is available in foil finish.
+    /// Parsed from MTGJSON finishes[]: contains "foil".
+    /// </summary>
+    public bool HasFoil { get; set; }
+
+    /// <summary>
+    /// Whether this printing is available in etched finish.
+    /// Parsed from MTGJSON finishes[]: contains "etched".
+    /// </summary>
+    public bool HasEtched { get; set; }
+
+    /// <summary>
+    /// MTGJSON collector number within the set (the "number" field).
+    /// Examples: "79", "351", "M380", "★1".
+    /// Used with SetCode for exact-match lookups against Good Games SKU values
+    /// (format: "{SetCode}-{CollectorNumber}-{Language}-{Finish}-{Version}").
+    /// </summary>
+    [MaxLength(20)]
+    public string? CollectorNumber { get; set; }
+
     // Navigation properties
     [ForeignKey(nameof(SetCode))]
     public CardSet Set { get; set; } = null!;
