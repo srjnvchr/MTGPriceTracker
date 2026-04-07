@@ -11,7 +11,7 @@ public class DiscordNotificationService : IDiscordNotificationService
 {
     public const string HttpClientName = "Discord";
 
-    private const double MinPriceChangePercent = 10.0;
+    private const decimal MinPriceChangePercent = 10m;
     private const decimal MinCurrentPrice = 3.0m;
     private const int LookbackDays = 7;
     private const int EmbedsPerMessage = 10;
@@ -39,84 +39,153 @@ public class DiscordNotificationService : IDiscordNotificationService
     {
         var cutoff = DateTime.UtcNow.AddDays(-LookbackDays);
 
-        // Pull all tcgplayer retail (non-foil) prices in the window.
-        // Condition is NULL for MTGJSON vendors — that's the non-foil retail price.
-        var snapshots = await _db.PriceSnapshots
+        // 1. Pull all TCGPlayer + Card Kingdom retail prices (foil and non-foil) for the window.
+        var intlSnapshots = await _db.PriceSnapshots
             .AsNoTracking()
-            .Where(p => p.Vendor == "tcgplayer"
-                     && p.PriceType == "retail"
+            .Where(p => (p.Vendor == "tcgplayer" || p.Vendor == "cardkingdom")
+                     && (p.PriceType == "retail" || p.PriceType == "retail_foil")
                      && p.Condition == null
                      && p.Date >= cutoff)
             .ToListAsync(ct);
 
-        if (snapshots.Count == 0)
+        // 2. Pull all Good Games prices (full history in window for change detection,
+        //    plus any older snapshot to establish a baseline).
+        var ggSnapshots = await _db.PriceSnapshots
+            .AsNoTracking()
+            .Where(p => p.Vendor == "goodgames"
+                     && p.PriceType == "retail"
+                     && p.Condition == "NM")
+            .GroupBy(p => p.CardUuid)
+            .Select(g => new
+            {
+                CardUuid   = g.Key,
+                // Latest GG price regardless of date
+                LatestPrice = g.OrderByDescending(p => p.Date).First().Price,
+                LatestDate  = g.OrderByDescending(p => p.Date).First().Date,
+                // Oldest GG price within the lookback window (for change detection)
+                OldestInWindow = g
+                    .Where(p => p.Date >= cutoff)
+                    .OrderBy(p => p.Date)
+                    .Select(p => (decimal?)p.Price)
+                    .FirstOrDefault()
+            })
+            .ToDictionaryAsync(x => x.CardUuid, ct);
+
+        if (ggSnapshots.Count == 0)
             return new List<PriceAlertDto>();
 
-        // Group by card, compare oldest vs newest price in the window.
-        var candidates = snapshots
-            .GroupBy(p => p.CardUuid)
+        // 3. For each card+vendor+priceType series, find the best jump.
+        //    Key: (CardUuid, Vendor, PriceType)
+        var jumpsBySeries = intlSnapshots
+            .GroupBy(p => (p.CardUuid, p.Vendor, p.PriceType))
             .Select(g =>
             {
                 var sorted = g.OrderBy(p => p.Date).ToList();
+                if (sorted.Count < 2) return null;
+
                 var oldest = sorted.First();
                 var latest = sorted.Last();
+                if (oldest.Price <= 0m) return null;
 
-                // Require at least two data points to compute a meaningful change.
-                if (sorted.Count < 2 || oldest.Price <= 0m)
-                    return null;
-
-                var changePct = (latest.Price - oldest.Price) / oldest.Price * 100m;
+                var pct = (latest.Price - oldest.Price) / oldest.Price * 100m;
                 return new
                 {
-                    CardUuid = g.Key,
-                    OldPrice = oldest.Price,
-                    NewPrice = latest.Price,
-                    ChangePercent = changePct,
-                    OldDate = oldest.Date,
-                    NewDate = latest.Date
+                    g.Key.CardUuid,
+                    g.Key.Vendor,
+                    g.Key.PriceType,
+                    OldPrice      = oldest.Price,
+                    NewPrice      = latest.Price,
+                    ChangePercent = pct,
+                    OldDate       = oldest.Date,
+                    NewDate       = latest.Date
                 };
             })
             .Where(x => x != null
                      && x.NewPrice >= MinCurrentPrice
-                     && x.ChangePercent >= (decimal)MinPriceChangePercent)
+                     && x.ChangePercent >= MinPriceChangePercent)
+            .ToList();
+
+        if (jumpsBySeries.Count == 0)
+            return new List<PriceAlertDto>();
+
+        // 4. Filter: card must have Good Games pricing AND GG must not have jumped ≥10% itself.
+        var qualifying = jumpsBySeries
+            .Where(x =>
+            {
+                if (!ggSnapshots.TryGetValue(x!.CardUuid, out var gg)) return false; // no GG price → skip
+
+                // If GG has both an old and new price in the window, check its change.
+                if (gg.OldestInWindow.HasValue && gg.OldestInWindow.Value > 0m)
+                {
+                    var ggChangePct = (gg.LatestPrice - gg.OldestInWindow.Value)
+                                      / gg.OldestInWindow.Value * 100m;
+                    if (ggChangePct >= MinPriceChangePercent) return false; // GG already repriced → skip
+                }
+
+                return true;
+            })
+            .ToList();
+
+        if (qualifying.Count == 0)
+            return new List<PriceAlertDto>();
+
+        // 5. Per card: keep only the single best (highest %) jump to avoid duplicate notifications.
+        var bestPerCard = qualifying
+            .GroupBy(x => x!.CardUuid)
+            .Select(g => g.OrderByDescending(x => x!.ChangePercent).First())
             .OrderByDescending(x => x!.ChangePercent)
             .ToList();
 
-        if (candidates.Count == 0)
-            return new List<PriceAlertDto>();
-
-        // Fetch card names + set codes for all matching UUIDs in one query.
-        var uuids = candidates.Select(c => c!.CardUuid).ToList();
+        // 6. Fetch card metadata in one query.
+        var uuids = bestPerCard.Select(x => x!.CardUuid).ToList();
         var cardInfo = await _db.Cards
             .AsNoTracking()
             .Where(c => uuids.Contains(c.Uuid))
-            .Select(c => new { c.Uuid, c.Name, c.SetCode })
+            .Select(c => new
+            {
+                c.Uuid,
+                c.Name,
+                c.SetCode,
+                c.CollectorNumber,
+                c.BorderColor,
+                c.FrameEffects,
+                c.HasFoil,
+                c.HasNonFoil
+            })
             .ToDictionaryAsync(c => c.Uuid, ct);
 
-        return candidates
-            .Where(c => cardInfo.ContainsKey(c!.CardUuid))
-            .Select(c => new PriceAlertDto
+        return bestPerCard
+            .Where(x => cardInfo.ContainsKey(x!.CardUuid))
+            .Select(x =>
             {
-                CardUuid      = c!.CardUuid,
-                CardName      = cardInfo[c.CardUuid].Name,
-                SetCode       = cardInfo[c.CardUuid].SetCode,
-                OldPrice      = c.OldPrice,
-                NewPrice      = c.NewPrice,
-                ChangePercent = Math.Round(c.ChangePercent, 1),
-                Currency      = "USD",
-                Vendor        = "TCGPlayer",
-                OldDate       = c.OldDate,
-                NewDate       = c.NewDate
+                var card = cardInfo[x!.CardUuid];
+                var gg   = ggSnapshots[x.CardUuid];
+                return new PriceAlertDto
+                {
+                    CardUuid        = x.CardUuid,
+                    CardName        = card.Name,
+                    SetCode         = card.SetCode,
+                    CollectorNumber = card.CollectorNumber,
+                    BorderColor     = card.BorderColor,
+                    FrameEffects    = card.FrameEffects,
+                    HasFoil         = card.HasFoil,
+                    HasNonFoil      = card.HasNonFoil,
+                    Vendor          = x.Vendor == "tcgplayer" ? "TCGPlayer" : "Card Kingdom",
+                    IsFoil          = x.PriceType == "retail_foil",
+                    OldPrice        = x.OldPrice,
+                    NewPrice        = x.NewPrice,
+                    ChangePercent   = Math.Round(x.ChangePercent, 1),
+                    Currency        = "USD",
+                    OldDate         = x.OldDate,
+                    NewDate         = x.NewDate,
+                    GoodGamesPrice  = gg.LatestPrice
+                };
             })
             .ToList();
     }
 
     // ── Discord webhook ──────────────────────────────────────────────────────
 
-    /// <summary>
-    /// Long-running — always called with CancellationToken.None so it is never
-    /// cancelled by the HTTP request lifetime.
-    /// </summary>
     public async Task PostAlertsAsync(List<PriceAlertDto> alerts)
     {
         var webhookUrl = _config["Discord:WebhookUrl"];
@@ -133,44 +202,99 @@ public class DiscordNotificationService : IDiscordNotificationService
         {
             var client = _httpClientFactory.CreateClient(HttpClientName);
 
-            // Header summary message.
             await SendMessageAsync(client, webhookUrl, new
             {
                 username = "MTG Price Tracker",
-                content  = $"**Price Alert** — {alerts.Count} card{(alerts.Count == 1 ? "" : "s")} jumped **10%+** in the last 7 days (TCGPlayer retail, NM, ≥$3)"
+                content  = $"**Buying Opportunity Alert** — {alerts.Count} card{(alerts.Count == 1 ? "" : "s")} spiked on TCGPlayer/Card Kingdom but Good Games **hasn't repriced yet** (≥10% jump, ≥$3)"
             });
 
-            // Send card embeds in batches of EmbedsPerMessage.
             for (int i = 0; i < alerts.Count; i += EmbedsPerMessage)
             {
                 var batch = alerts.Skip(i).Take(EmbedsPerMessage).ToList();
 
                 var embeds = batch.Select(alert => new
                 {
-                    title  = $"{alert.CardName}  [{alert.SetCode}]",
+                    title  = FormatTitle(alert),
                     color  = EmbedColor(alert.ChangePercent),
-                    fields = new[]
-                    {
-                        new { name = "7 Days Ago",    value = $"${alert.OldPrice:F2}",       inline = true },
-                        new { name = "Current Price", value = $"${alert.NewPrice:F2}",       inline = true },
-                        new { name = "Change",        value = $"+{alert.ChangePercent:F1}%", inline = true }
-                    },
-                    footer = new { text = $"TCGPlayer · NM Retail · {alert.OldDate:dd MMM} → {alert.NewDate:dd MMM}" }
+                    fields = BuildFields(alert),
+                    footer = new { text = $"{alert.Vendor} · {alert.OldDate:dd MMM} → {alert.NewDate:dd MMM}" }
                 }).ToList();
 
                 await SendMessageAsync(client, webhookUrl, new { username = "MTG Price Tracker", embeds });
 
-                // Polite delay between batches — Discord allows 30 requests/second per webhook.
                 if (i + EmbedsPerMessage < alerts.Count)
                     await Task.Delay(1000);
             }
 
-            _logger.LogInformation("Discord price alerts sent: {Count} cards.", alerts.Count);
+            _logger.LogInformation("Discord buying-opportunity alerts sent: {Count} cards.", alerts.Count);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to post Discord price alerts.");
         }
+    }
+
+    // ── Formatting helpers ───────────────────────────────────────────────────
+
+    private static string FormatTitle(PriceAlertDto alert)
+    {
+        var finish = alert.IsFoil ? "✨ Foil" : "Non-Foil";
+        var num    = alert.CollectorNumber != null ? $" #{alert.CollectorNumber}" : string.Empty;
+        return $"{alert.CardName} [{alert.SetCode}{num}] · {finish}";
+    }
+
+    private static object[] BuildFields(PriceAlertDto alert)
+    {
+        var border  = FormatBorder(alert.BorderColor, alert.FrameEffects);
+        var finishes = FormatFinishes(alert.HasFoil, alert.HasNonFoil);
+        var ggPrice = alert.GoodGamesPrice.HasValue
+            ? $"AU${alert.GoodGamesPrice.Value:F2}"
+            : "Not stocked";
+
+        return new object[]
+        {
+            new { name = "Was",            value = $"${alert.OldPrice:F2} USD",         inline = true },
+            new { name = "Now",            value = $"${alert.NewPrice:F2} USD",         inline = true },
+            new { name = "Jump",           value = $"+{alert.ChangePercent:F1}%",       inline = true },
+            new { name = "Good Games",     value = ggPrice,                             inline = true },
+            new { name = "Border/Frame",   value = border,                              inline = true },
+            new { name = "Finishes",       value = finishes,                            inline = true }
+        };
+    }
+
+    private static string FormatBorder(string? borderColor, string? frameEffects)
+    {
+        var parts = new List<string>();
+
+        if (!string.IsNullOrWhiteSpace(borderColor) && borderColor != "black")
+            parts.Add(System.Globalization.CultureInfo.InvariantCulture.TextInfo
+                          .ToTitleCase(borderColor));
+
+        if (!string.IsNullOrWhiteSpace(frameEffects))
+        {
+            foreach (var fx in frameEffects.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+            {
+                var label = fx switch
+                {
+                    "showcase"    => "Showcase",
+                    "extendedart" => "Extended Art",
+                    "borderless"  => "Borderless",
+                    "etched"      => "Etched",
+                    "fullart"     => "Full Art",
+                    _             => System.Globalization.CultureInfo.InvariantCulture.TextInfo.ToTitleCase(fx)
+                };
+                parts.Add(label);
+            }
+        }
+
+        return parts.Count > 0 ? string.Join(", ", parts) : "Standard";
+    }
+
+    private static string FormatFinishes(bool hasFoil, bool hasNonFoil)
+    {
+        if (hasFoil && hasNonFoil) return "Foil + Non-Foil";
+        if (hasFoil) return "Foil only";
+        return "Non-Foil only";
     }
 
     private static async Task SendMessageAsync(HttpClient client, string webhookUrl, object payload)
@@ -187,11 +311,10 @@ public class DiscordNotificationService : IDiscordNotificationService
         }
     }
 
-    /// <summary>Returns a Discord embed colour based on the magnitude of the price jump.</summary>
     private static int EmbedColor(decimal changePct) => changePct switch
     {
-        >= 50m => 0xFF4500,  // red-orange  — extreme spike
-        >= 25m => 0xFF8C00,  // dark orange — large spike
-        _      => 0xFFD700   // gold        — moderate jump (10–25%)
+        >= 50m => 0xFF4500,
+        >= 25m => 0xFF8C00,
+        _      => 0xFFD700
     };
 }

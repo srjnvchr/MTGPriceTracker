@@ -200,15 +200,15 @@
         <MudPaper Elevation="2" Class="pa-5" Style="background:var(--mud-palette-surface); border-radius:12px; border: 1px solid rgba(88,101,242,0.4); height:100%;">
             <div class="d-flex align-center mb-3">
                 <MudIcon Icon="@Icons.Material.Filled.Notifications" Style="color:#7289DA;" Class="mr-2" />
-                <MudText Typo="Typo.h6" Style="font-weight:600;">Discord Price Alerts</MudText>
+                <MudText Typo="Typo.h6" Style="font-weight:600;">Discord Buying Opportunity Alerts</MudText>
             </div>
             <MudText Typo="Typo.body2" Class="mb-4" Style="color:rgba(255,255,255,0.6);">
-                Scans the last 7 days of TCGPlayer retail prices and sends a Discord notification
-                for every card that jumped <strong>10%+</strong> and is currently worth <strong>≥$3</strong>.
-                Cards are colour-coded by spike size (gold · orange · red).
+                Finds cards where <strong>TCGPlayer or Card Kingdom</strong> jumped <strong>≥10%</strong>
+                in the last 7 days but <strong>Good Games hasn't repriced yet</strong> — your window
+                to buy before the local price catches up. Only cards with active Good Games pricing are included.
             </MudText>
             <MudText Typo="Typo.caption" Class="mb-4" Style="color:rgba(255,255,255,0.4);">
-                Vendor: TCGPlayer · NM Retail (USD)
+                TCGPlayer / Card Kingdom (USD, ≥$3) · Good Games NM (AUD)
             </MudText>
             <MudButton Variant="Variant.Filled"
                        Style="background:#5865F2; color:#fff;"
@@ -232,19 +232,33 @@
                         <thead>
                             <tr>
                                 <th style="color:rgba(255,255,255,0.5); font-size:0.7rem;">Card</th>
-                                <th style="color:rgba(255,255,255,0.5); font-size:0.7rem; text-align:right;">Was</th>
-                                <th style="color:rgba(255,255,255,0.5); font-size:0.7rem; text-align:right;">Now</th>
-                                <th style="color:rgba(255,255,255,0.5); font-size:0.7rem; text-align:right;">Change</th>
+                                <th style="color:rgba(255,255,255,0.5); font-size:0.7rem;">Details</th>
+                                <th style="color:rgba(255,255,255,0.5); font-size:0.7rem; text-align:right;">Intl Jump</th>
+                                <th style="color:rgba(255,255,255,0.5); font-size:0.7rem; text-align:right;">GG Price</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach (var alert in _lastAlertResult.Alerts.Take(10))
                             {
                                 <tr>
-                                    <td style="font-size:0.75rem;">@alert.CardName <span style="color:rgba(255,255,255,0.35);">[@alert.SetCode]</span></td>
-                                    <td style="font-size:0.75rem; text-align:right; color:rgba(255,255,255,0.5);">$@alert.OldPrice.ToString("F2")</td>
-                                    <td style="font-size:0.75rem; text-align:right;">$@alert.NewPrice.ToString("F2")</td>
-                                    <td style="font-size:0.75rem; text-align:right; color:@AlertColor(alert.ChangePercent); font-weight:600;">+@alert.ChangePercent.ToString("F1")%</td>
+                                    <td style="font-size:0.75rem;">
+                                        @alert.CardName
+                                        <span style="color:rgba(255,255,255,0.35);"> [@alert.SetCode @(alert.CollectorNumber != null ? $"#{alert.CollectorNumber}" : "")]</span>
+                                    </td>
+                                    <td style="font-size:0.7rem; color:rgba(255,255,255,0.5);">
+                                        @(alert.IsFoil ? "✨ Foil" : "Non-Foil")
+                                        @if (!string.IsNullOrWhiteSpace(alert.BorderColor) && alert.BorderColor != "black")
+                                        {
+                                            <span> · @alert.BorderColor</span>
+                                        }
+                                    </td>
+                                    <td style="font-size:0.75rem; text-align:right; color:@AlertColor(alert.ChangePercent); font-weight:600;">
+                                        +@alert.ChangePercent.ToString("F1")%
+                                        <div style="font-size:0.65rem; color:rgba(255,255,255,0.4); font-weight:400;">@alert.Vendor</div>
+                                    </td>
+                                    <td style="font-size:0.75rem; text-align:right; color:#81c784;">
+                                        @(alert.GoodGamesPrice.HasValue ? $"AU${alert.GoodGamesPrice.Value:F2}" : "—")
+                                    </td>
                                 </tr>
                             }
                         </tbody>
