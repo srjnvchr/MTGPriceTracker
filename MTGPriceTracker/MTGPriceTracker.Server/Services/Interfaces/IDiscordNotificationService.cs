@@ -5,8 +5,13 @@ namespace MTGPriceTracker.Server.Services.Interfaces;
 public interface IDiscordNotificationService
 {
     /// <summary>
-    /// Finds cards whose TCGPlayer retail price jumped ≥10% in the last 7 days
-    /// and whose current price is ≥ $3, then posts a Discord embed for each.
+    /// Queries the DB for price alerts (fast). Returns immediately.
     /// </summary>
-    Task<PriceAlertResultDto> SendPriceAlertsAsync(CancellationToken ct = default);
+    Task<List<PriceAlertDto>> FindAlertsAsync(CancellationToken ct = default);
+
+    /// <summary>
+    /// Posts the given alerts to Discord. Long-running — call fire-and-forget
+    /// with CancellationToken.None so it isn't tied to the HTTP request lifetime.
+    /// </summary>
+    Task PostAlertsAsync(List<PriceAlertDto> alerts);
 }

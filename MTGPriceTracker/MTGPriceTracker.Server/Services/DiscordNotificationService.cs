@@ -1,4 +1,3 @@
-using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
@@ -34,45 +33,9 @@ public class DiscordNotificationService : IDiscordNotificationService
         _logger = logger;
     }
 
-    public async Task<PriceAlertResultDto> SendPriceAlertsAsync(CancellationToken ct = default)
-    {
-        var webhookUrl = _config["Discord:WebhookUrl"];
-        if (string.IsNullOrWhiteSpace(webhookUrl))
-        {
-            return new PriceAlertResultDto
-            {
-                Success = false,
-                Message = "Discord webhook URL is not configured."
-            };
-        }
-
-        var alerts = await GetPriceAlertsAsync(ct);
-
-        if (alerts.Count == 0)
-        {
-            return new PriceAlertResultDto
-            {
-                Success = true,
-                Message = "No cards met the alert criteria (≥10% jump, ≥$3 current price).",
-                AlertCount = 0,
-                Alerts = alerts
-            };
-        }
-
-        await PostToDiscordAsync(webhookUrl, alerts, ct);
-
-        return new PriceAlertResultDto
-        {
-            Success = true,
-            Message = $"Sent {alerts.Count} price alert{(alerts.Count == 1 ? "" : "s")} to Discord.",
-            AlertCount = alerts.Count,
-            Alerts = alerts
-        };
-    }
-
     // ── Query ────────────────────────────────────────────────────────────────
 
-    private async Task<List<PriceAlertDto>> GetPriceAlertsAsync(CancellationToken ct)
+    public async Task<List<PriceAlertDto>> FindAlertsAsync(CancellationToken ct = default)
     {
         var cutoff = DateTime.UtcNow.AddDays(-LookbackDays);
 
@@ -89,7 +52,7 @@ public class DiscordNotificationService : IDiscordNotificationService
         if (snapshots.Count == 0)
             return new List<PriceAlertDto>();
 
-        // Build alert candidates in memory — grouping by card, comparing oldest vs newest price.
+        // Group by card, compare oldest vs newest price in the window.
         var candidates = snapshots
             .GroupBy(p => p.CardUuid)
             .Select(g =>
@@ -134,75 +97,91 @@ public class DiscordNotificationService : IDiscordNotificationService
             .Where(c => cardInfo.ContainsKey(c!.CardUuid))
             .Select(c => new PriceAlertDto
             {
-                CardUuid    = c!.CardUuid,
-                CardName    = cardInfo[c.CardUuid].Name,
-                SetCode     = cardInfo[c.CardUuid].SetCode,
-                OldPrice    = c.OldPrice,
-                NewPrice    = c.NewPrice,
+                CardUuid      = c!.CardUuid,
+                CardName      = cardInfo[c.CardUuid].Name,
+                SetCode       = cardInfo[c.CardUuid].SetCode,
+                OldPrice      = c.OldPrice,
+                NewPrice      = c.NewPrice,
                 ChangePercent = Math.Round(c.ChangePercent, 1),
-                Currency    = "USD",
-                Vendor      = "TCGPlayer",
-                OldDate     = c.OldDate,
-                NewDate     = c.NewDate
+                Currency      = "USD",
+                Vendor        = "TCGPlayer",
+                OldDate       = c.OldDate,
+                NewDate       = c.NewDate
             })
             .ToList();
     }
 
     // ── Discord webhook ──────────────────────────────────────────────────────
 
-    private async Task PostToDiscordAsync(
-        string webhookUrl,
-        List<PriceAlertDto> alerts,
-        CancellationToken ct)
+    /// <summary>
+    /// Long-running — always called with CancellationToken.None so it is never
+    /// cancelled by the HTTP request lifetime.
+    /// </summary>
+    public async Task PostAlertsAsync(List<PriceAlertDto> alerts)
     {
-        var client = _httpClientFactory.CreateClient(HttpClientName);
-
-        // Header message summarising the run.
-        await SendMessageAsync(client, webhookUrl, new
+        var webhookUrl = _config["Discord:WebhookUrl"];
+        if (string.IsNullOrWhiteSpace(webhookUrl))
         {
-            username = "MTG Price Tracker",
-            content  = $"**Price Alert** — {alerts.Count} card{(alerts.Count == 1 ? "" : "s")} jumped **10%+** in the last 7 days (TCGPlayer retail, NM, ≥$3)"
-        }, ct);
+            _logger.LogWarning("Discord webhook URL is not configured — skipping post.");
+            return;
+        }
 
-        // Send cards in batches of EmbedsPerMessage.
-        for (int i = 0; i < alerts.Count; i += EmbedsPerMessage)
+        if (alerts.Count == 0)
+            return;
+
+        try
         {
-            var batch = alerts.Skip(i).Take(EmbedsPerMessage).ToList();
+            var client = _httpClientFactory.CreateClient(HttpClientName);
 
-            var embeds = batch.Select(alert => new
+            // Header summary message.
+            await SendMessageAsync(client, webhookUrl, new
             {
-                title  = $"{alert.CardName}  [{alert.SetCode}]",
-                color  = EmbedColor(alert.ChangePercent),
-                fields = new[]
+                username = "MTG Price Tracker",
+                content  = $"**Price Alert** — {alerts.Count} card{(alerts.Count == 1 ? "" : "s")} jumped **10%+** in the last 7 days (TCGPlayer retail, NM, ≥$3)"
+            });
+
+            // Send card embeds in batches of EmbedsPerMessage.
+            for (int i = 0; i < alerts.Count; i += EmbedsPerMessage)
+            {
+                var batch = alerts.Skip(i).Take(EmbedsPerMessage).ToList();
+
+                var embeds = batch.Select(alert => new
                 {
-                    new { name = "7 Days Ago",     value = $"${alert.OldPrice:F2}",          inline = true },
-                    new { name = "Current Price",  value = $"${alert.NewPrice:F2}",          inline = true },
-                    new { name = "Change",         value = $"+{alert.ChangePercent:F1}%",    inline = true }
-                },
-                footer = new { text = $"TCGPlayer · NM Retail · {alert.OldDate:dd MMM} → {alert.NewDate:dd MMM}" }
-            }).ToList();
+                    title  = $"{alert.CardName}  [{alert.SetCode}]",
+                    color  = EmbedColor(alert.ChangePercent),
+                    fields = new[]
+                    {
+                        new { name = "7 Days Ago",    value = $"${alert.OldPrice:F2}",       inline = true },
+                        new { name = "Current Price", value = $"${alert.NewPrice:F2}",       inline = true },
+                        new { name = "Change",        value = $"+{alert.ChangePercent:F1}%", inline = true }
+                    },
+                    footer = new { text = $"TCGPlayer · NM Retail · {alert.OldDate:dd MMM} → {alert.NewDate:dd MMM}" }
+                }).ToList();
 
-            await SendMessageAsync(client, webhookUrl, new { username = "MTG Price Tracker", embeds }, ct);
+                await SendMessageAsync(client, webhookUrl, new { username = "MTG Price Tracker", embeds });
 
-            // Polite delay between batches to stay under Discord's rate limit (50 req/s per webhook).
-            if (i + EmbedsPerMessage < alerts.Count)
-                await Task.Delay(1000, ct);
+                // Polite delay between batches — Discord allows 30 requests/second per webhook.
+                if (i + EmbedsPerMessage < alerts.Count)
+                    await Task.Delay(1000);
+            }
+
+            _logger.LogInformation("Discord price alerts sent: {Count} cards.", alerts.Count);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to post Discord price alerts.");
         }
     }
 
-    private static async Task SendMessageAsync(
-        HttpClient client,
-        string webhookUrl,
-        object payload,
-        CancellationToken ct)
+    private static async Task SendMessageAsync(HttpClient client, string webhookUrl, object payload)
     {
-        var json    = JsonSerializer.Serialize(payload);
-        var content = new StringContent(json, Encoding.UTF8, "application/json");
-        var response = await client.PostAsync(webhookUrl, content, ct);
+        var json     = JsonSerializer.Serialize(payload);
+        var content  = new StringContent(json, Encoding.UTF8, "application/json");
+        var response = await client.PostAsync(webhookUrl, content);
 
         if (!response.IsSuccessStatusCode)
         {
-            var body = await response.Content.ReadAsStringAsync(ct);
+            var body = await response.Content.ReadAsStringAsync();
             throw new InvalidOperationException(
                 $"Discord webhook returned {(int)response.StatusCode}: {body}");
         }
