@@ -104,6 +104,14 @@ public class ApiService
         return await response.Content.ReadFromJsonAsync<SyncTriggerResponse>();
     }
 
+    // ── Notifications ────────────────────────────────────────────────────────
+
+    public async Task<PriceAlertResultDto?> TriggerDiscordPriceAlertsAsync()
+    {
+        var response = await _http.PostAsync("api/notifications/discord/price-alerts", null);
+        return await response.Content.ReadFromJsonAsync<PriceAlertResultDto>();
+    }
+
     // ── Helpers ──────────────────────────────────────────────────────────────
 
     private static string BuildCardsUrl(CardSearchQuery q)

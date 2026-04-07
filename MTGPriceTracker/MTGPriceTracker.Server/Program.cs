@@ -25,6 +25,7 @@ builder.Services.AddScoped<IPriceService, PriceService>();
 builder.Services.AddScoped<IFavoritesService, FavoritesService>();
 builder.Services.AddScoped<IMtgJsonService, MtgJsonService>();
 builder.Services.AddScoped<IGoodGamesScraperService, GoodGamesScraperService>();
+builder.Services.AddScoped<IDiscordNotificationService, DiscordNotificationService>();
 
 // ── HTTP Clients (named — consumed via IHttpClientFactory) ────────────────────
 // Using named clients because the services are Scoped, and AddHttpClient<T> creates
@@ -39,6 +40,10 @@ builder.Services.AddHttpClient(GoodGamesScraperService.HttpClientName, client =>
     client.DefaultRequestHeaders.Add("User-Agent",
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0 Safari/537.36");
     client.Timeout = TimeSpan.FromSeconds(30);
+});
+builder.Services.AddHttpClient(DiscordNotificationService.HttpClientName, client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(15);
 });
 
 // ── Background Services ───────────────────────────────────────────────────────
