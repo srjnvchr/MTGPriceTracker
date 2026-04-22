@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Text;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
@@ -15,6 +16,10 @@ public class DiscordNotificationService : IDiscordNotificationService
     private const decimal MinCurrentPrice = 3.0m;
     private const int LookbackDays = 7;
     private const int EmbedsPerMessage = 10;
+
+    // Thread IDs keyed by UTC date — persists for the app's lifetime.
+    // If the app restarts on the same day a new thread is opened, which is fine.
+    private static readonly ConcurrentDictionary<DateOnly, string> s_threadCache = new();
 
     private readonly AppDbContext _db;
     private readonly IHttpClientFactory _httpClientFactory;
@@ -186,6 +191,15 @@ public class DiscordNotificationService : IDiscordNotificationService
 
     // ── Discord webhook ──────────────────────────────────────────────────────
 
+    /// <summary>
+    /// Posts alerts to a Discord Forum-channel thread for today's date.
+    /// Green (moderate) alerts are posted first, yellow (significant) second,
+    /// and red (high-value) last — so red cards sit at the bottom of the thread
+    /// and are immediately visible when anyone opens it.
+    ///
+    /// The webhook URL in appsettings must point to a Discord Forum channel
+    /// so that each call without a thread_id creates a new named thread.
+    /// </summary>
     public async Task PostAlertsAsync(List<PriceAlertDto> alerts)
     {
         var webhookUrl = _config["Discord:WebhookUrl"];
@@ -198,39 +212,102 @@ public class DiscordNotificationService : IDiscordNotificationService
         if (alerts.Count == 0)
             return;
 
+        // ── 1. Classify by severity ──────────────────────────────────────────
+        var yellowThreshold = decimal.TryParse(_config["Discord:YellowThresholdPct"], out var y) ? y : 25m;
+        var redThreshold    = decimal.TryParse(_config["Discord:RedThresholdPct"],    out var r) ? r : 50m;
+
+        var green  = alerts.Where(a => a.ChangePercent <  yellowThreshold)
+                           .OrderByDescending(a => a.ChangePercent).ToList();
+        var yellow = alerts.Where(a => a.ChangePercent >= yellowThreshold && a.ChangePercent < redThreshold)
+                           .OrderByDescending(a => a.ChangePercent).ToList();
+        var red    = alerts.Where(a => a.ChangePercent >= redThreshold)
+                           .OrderByDescending(a => a.ChangePercent).ToList();
+
         try
         {
             var client = _httpClientFactory.CreateClient(HttpClientName);
+            var today  = DateOnly.FromDateTime(DateTime.UtcNow);
 
-            await SendMessageAsync(client, webhookUrl, new
+            // ── 2. Create or reuse today's Forum thread ──────────────────────
+            if (!s_threadCache.TryGetValue(today, out var threadId))
             {
-                username = "MTG Price Tracker",
-                content  = $"**Buying Opportunity Alert** — {alerts.Count} card{(alerts.Count == 1 ? "" : "s")} spiked on TCGPlayer/Card Kingdom but Good Games **hasn't repriced yet** (≥10% jump, ≥$3)"
-            });
+                var threadName = $"📊 {DateTime.UtcNow:dd MMM yyyy} — MTG Buying Opportunities";
+                var summary    = $"🟢 **{green.Count}** moderate" +
+                                 $"  🟡 **{yellow.Count}** significant" +
+                                 $"  🔴 **{red.Count}** high-value";
 
-            for (int i = 0; i < alerts.Count; i += EmbedsPerMessage)
-            {
-                var batch = alerts.Skip(i).Take(EmbedsPerMessage).ToList();
-
-                var embeds = batch.Select(alert => new
+                // POST with ?wait=true so Discord returns the full message object
+                // containing channel_id = the newly created thread's ID.
+                var openPayload = new
                 {
-                    title  = FormatTitle(alert),
-                    color  = EmbedColor(alert.ChangePercent),
-                    fields = BuildFields(alert),
-                    footer = new { text = $"{alert.Vendor} · {alert.OldDate:dd MMM} → {alert.NewDate:dd MMM}" }
-                }).ToList();
+                    username    = "MTG Price Tracker",
+                    thread_name = threadName,
+                    embeds      = new[]
+                    {
+                        new
+                        {
+                            description = summary,
+                            color       = 0x5865F2   // Discord blurple — neutral header
+                        }
+                    }
+                };
 
-                await SendMessageAsync(client, webhookUrl, new { username = "MTG Price Tracker", embeds });
+                var responseBody = await SendAndReadAsync(client, $"{webhookUrl}?wait=true", openPayload);
+                using var doc    = JsonDocument.Parse(responseBody);
+                threadId         = doc.RootElement.GetProperty("channel_id").GetString()!;
+                s_threadCache[today] = threadId;
 
-                if (i + EmbedsPerMessage < alerts.Count)
-                    await Task.Delay(1000);
+                _logger.LogInformation("Created Discord thread {ThreadId} for {Date}", threadId, today);
             }
 
-            _logger.LogInformation("Discord buying-opportunity alerts sent: {Count} cards.", alerts.Count);
+            var threadUrl = $"{webhookUrl}?thread_id={threadId}";
+
+            // ── 3. Send groups in order: green → yellow → red ────────────────
+            //    Red is sent last so it sits at the bottom of the thread —
+            //    the most accessible position when the thread is opened.
+            await SendEmbedGroupAsync(client, threadUrl, green,  label: "🟢 Moderate spikes",     color: 0x2DC770);
+            await SendEmbedGroupAsync(client, threadUrl, yellow, label: "🟡 Significant spikes",   color: 0xFAAD14);
+            await SendEmbedGroupAsync(client, threadUrl, red,    label: "🔴 High-value proposals", color: 0xE53935);
+
+            _logger.LogInformation(
+                "Discord alerts posted — 🟢 {G}  🟡 {Y}  🔴 {R}  thread={T}",
+                green.Count, yellow.Count, red.Count, threadId);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to post Discord price alerts.");
+        }
+    }
+
+    // Sends a labelled group header then batches of up to 10 embeds into the thread.
+    private async Task SendEmbedGroupAsync(
+        HttpClient client, string threadUrl,
+        List<PriceAlertDto> group, string label, int color)
+    {
+        if (group.Count == 0) return;
+
+        // Section header
+        await SendMessageAsync(client, threadUrl, new
+        {
+            username = "MTG Price Tracker",
+            content  = $"**{label}** — {group.Count} card{(group.Count == 1 ? "" : "s")}"
+        });
+
+        for (int i = 0; i < group.Count; i += EmbedsPerMessage)
+        {
+            var batch  = group.Skip(i).Take(EmbedsPerMessage).ToList();
+            var embeds = batch.Select(alert => new
+            {
+                title  = FormatTitle(alert),
+                color,
+                fields = BuildFields(alert),
+                footer = new { text = $"{alert.Vendor} · {alert.OldDate:dd MMM} → {alert.NewDate:dd MMM}" }
+            }).ToList();
+
+            await SendMessageAsync(client, threadUrl, new { username = "MTG Price Tracker", embeds });
+
+            if (i + EmbedsPerMessage < group.Count)
+                await Task.Delay(1000); // stay within Discord rate limits
         }
     }
 
@@ -299,22 +376,20 @@ public class DiscordNotificationService : IDiscordNotificationService
 
     private static async Task SendMessageAsync(HttpClient client, string webhookUrl, object payload)
     {
+        await SendAndReadAsync(client, webhookUrl, payload);
+    }
+
+    private static async Task<string> SendAndReadAsync(HttpClient client, string webhookUrl, object payload)
+    {
         var json     = JsonSerializer.Serialize(payload);
         var content  = new StringContent(json, Encoding.UTF8, "application/json");
         var response = await client.PostAsync(webhookUrl, content);
+        var body     = await response.Content.ReadAsStringAsync();
 
         if (!response.IsSuccessStatusCode)
-        {
-            var body = await response.Content.ReadAsStringAsync();
             throw new InvalidOperationException(
                 $"Discord webhook returned {(int)response.StatusCode}: {body}");
-        }
-    }
 
-    private static int EmbedColor(decimal changePct) => changePct switch
-    {
-        >= 50m => 0xFF4500,
-        >= 25m => 0xFF8C00,
-        _      => 0xFFD700
-    };
+        return body;
+    }
 }
