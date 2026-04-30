@@ -74,16 +74,14 @@ else if (_cards.Count == 0 && !_loading)
 }
 else
 {
-    <MudGrid Spacing="4">
-        @foreach (var card in _cards)
-        {
-            <MudItem>
-                <MtgCardTile Card="card" OnFavoriteToggled="HandleFavoriteToggled" />
-            </MudItem>
-        }
-    </MudGrid>
+    <!-- Virtualized card grid — only tiles near the viewport are in the DOM -->
+    <div class="card-grid-container">
+        <Virtualize Items="_cards" Context="card" ItemSize="40" OverscanCount="36">
+            <MtgCardTile Card="card" OnFavoriteToggled="HandleFavoriteToggled" />
+        </Virtualize>
+    </div>
 
-    <!-- Load more / infinite scroll trigger -->
+    <!-- Load more -->
     @if (_hasMore)
     {
         <div class="d-flex justify-center mt-6">
@@ -107,7 +105,7 @@ else
 @code {
     [SupplyParameterFromQuery] public string? Query { get; set; }
 
-    private readonly CardSearchQuery _query = new() { PageSize = 24 };
+    private readonly CardSearchQuery _query = new() { PageSize = 48 };
     private bool _favoritesOnly;
     private List<CardDto> _cards = new();
     private int _totalCount;

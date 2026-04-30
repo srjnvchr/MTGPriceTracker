@@ -221,6 +221,30 @@ code {
     100% { background-position: 0%   100%, center; opacity: 0.18; }
 }
 
+/* ── Virtualised card grid container ────────────────────── */
+
+/*
+   CSS grid with auto-fill 160px columns. Virtualize<CardDto> renders
+   individual tiles directly as grid items.
+
+   ItemSize = 239 / 6 ≈ 40px — each card's contribution to scroll
+   height assuming ~6 columns. OverscanCount=36 buffers any variance.
+
+   Virtualize spacer <div aria-hidden="true"> elements must span all
+   columns so their height correctly represents hidden rows, not cells.
+*/
+.card-grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 160px);
+    gap: 16px;
+    justify-content: start;
+    align-items: start;
+}
+
+.card-grid-container > [aria-hidden="true"] {
+    grid-column: 1 / -1;
+}
+
 /* ── Card name on hover ─────────────────────────────────── */
 
 .mtg-tile__name {
