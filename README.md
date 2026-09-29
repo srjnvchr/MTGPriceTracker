@@ -64,8 +64,8 @@ After that, the nightly job keeps prices current.
 |---|---|
 | `Database:Path` | SQLite file path (default `mtg-prices.db`) |
 | `Discord:WebhookUrl` | Webhook of a Discord **forum** channel for price alerts |
-| `Discord:YellowThresholdPct` | Spike % at which alerts turn yellow (default 25) |
-| `Discord:RedThresholdPct` | Spike % at which alerts turn red (default 50) |
+| `Discord:YellowThresholdPct` | Spike % at which alerts turn yellow (default 25; mid increment in price) |
+| `Discord:RedThresholdPct` | Spike % at which alerts turn red (default 50; high increment in price) |
 
 Keep your webhook URL out of source control — use [user secrets](https://learn.microsoft.com/aspnet/core/security/app-secrets) (`dotnet user-secrets set "Discord:WebhookUrl" "<url>"`) or the `Discord__WebhookUrl` environment variable.
 
