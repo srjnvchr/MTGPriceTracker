@@ -5,6 +5,9 @@ Track Magic: The Gathering card prices across international vendors and local Au
 Built with Blazor WebAssembly (hosted) on ASP.NET Core 8, backed by SQLite.
 Read more about the project architecture in ARCHITECTURE.md file.
 
+<img width="1920" height="1080" alt="MTGPriceTracker-homepage-1080p" src="https://github.com/user-attachments/assets/9cbb5f1e-9f4a-4b37-b168-d72661c930ee" />
+
+
 ## Features
 
 - **Card catalog** — every MTG printing imported from [MTGJSON](https://mtgjson.com), browsable with search, set/rarity/type filters and sorting
@@ -15,6 +18,9 @@ Read more about the project architecture in ARCHITECTURE.md file.
 - **Nightly sync** — background job runs at 1:00 AM AEST; also triggerable from the UI
 - **Discord alerts** — finds cards whose TCGPlayer/Card Kingdom price jumped while Good Games hasn't repriced yet, and posts them to a daily Discord forum thread, colour-coded by size of the spike
 - **Admin tools** — Data Sync page and a Good Games inspector for debugging product matching
+
+<img width="1920" height="1080" alt="MTGPriceTracker-card-1080p" src="https://github.com/user-attachments/assets/d8fa9150-4868-4eef-821c-7747a10d1b87" />
+
 
 ## Tech stack
 
