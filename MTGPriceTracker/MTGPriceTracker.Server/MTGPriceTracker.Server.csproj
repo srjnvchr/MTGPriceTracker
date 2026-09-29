@@ -1,10 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>MTGPriceTracker.Server</RootNamespace>
+    <UserSecretsId>3f706a62-1ab3-47f4-842c-556170cb54e5</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

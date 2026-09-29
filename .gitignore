@@ -31,9 +31,27 @@ project.lock.json
 project.fragment.lock.json
 artifacts/
 
-## User secrets
+## User secrets & local config overrides
 secrets.json
+*.secrets.json
 appsettings.*.local.json
+appsettings.Local.json
+appsettings.Secrets.json
+appsettings.Production.json
+.env
+.env.*
+!.env.example
+*.env
+
+## Keys & certificates
+*.pem
+*.key
+*.pfx
+*.p12
+*.crt
+*.cer
+id_rsa*
+id_ed25519*
 
 ## OS
 .DS_Store
