@@ -3,6 +3,7 @@
 Track Magic: The Gathering card prices across international vendors and local Australian resellers, with daily price history and Discord alerts for buying opportunities.
 
 Built with Blazor WebAssembly (hosted) on ASP.NET Core 8, backed by SQLite.
+Read more about the project architecture in ARCHITECTURE.md file.
 
 ## Features
 
