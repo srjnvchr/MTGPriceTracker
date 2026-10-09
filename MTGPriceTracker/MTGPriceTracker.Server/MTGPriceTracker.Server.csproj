@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -21,14 +21,33 @@
 
     <!-- API documentation -->
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
-
-    <!-- Blazor WASM hosting -->
-    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MTGPriceTracker.Client\MTGPriceTracker.Client.csproj" />
     <ProjectReference Include="..\MTGPriceTracker.Shared\MTGPriceTracker.Shared.csproj" />
   </ItemGroup>
+
+  <!--
+    React frontend (MTGPriceTracker.Web). `dotnet publish` builds it with npm and ships the
+    result in wwwroot/. Needs Node ^20.19 or >=22.12 on the machine that publishes.
+    Skip the npm step and reuse an existing dist/ with:  dotnet publish -p:SkipWebBuild=true
+  -->
+  <PropertyGroup>
+    <WebProjectDir>$(MSBuildProjectDirectory)/../MTGPriceTracker.Web/</WebProjectDir>
+  </PropertyGroup>
+
+  <Target Name="BuildReactApp" AfterTargets="ComputeFilesToPublish">
+    <Exec Command="npm install --no-audit --no-fund" WorkingDirectory="$(WebProjectDir)" Condition="'$(SkipWebBuild)' != 'true'" />
+    <Exec Command="npm run build" WorkingDirectory="$(WebProjectDir)" Condition="'$(SkipWebBuild)' != 'true'" />
+
+    <ItemGroup>
+      <ReactDist Include="$(WebProjectDir)dist/**" />
+      <ResolvedFileToPublish Include="@(ReactDist)">
+        <RelativePath>wwwroot/%(RecursiveDir)%(Filename)%(Extension)</RelativePath>
+        <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+        <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      </ResolvedFileToPublish>
+    </ItemGroup>
+  </Target>
 
 </Project>

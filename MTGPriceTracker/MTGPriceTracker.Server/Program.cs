@@ -110,7 +110,6 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "MTG Price Tracker API v1"));
-    app.UseWebAssemblyDebugging();
 }
 else
 {
@@ -119,7 +118,6 @@ else
 
 app.UseHttpsRedirection();
 app.UseCors();
-app.UseBlazorFrameworkFiles();
 app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthorization();
