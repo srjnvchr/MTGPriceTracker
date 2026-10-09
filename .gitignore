@@ -53,6 +53,10 @@ appsettings.Production.json
 id_rsa*
 id_ed25519*
 
+## AI tooling (skills, agent config)
+.claude/
+.agents/
+
 ## OS
 .DS_Store
 Thumbs.db

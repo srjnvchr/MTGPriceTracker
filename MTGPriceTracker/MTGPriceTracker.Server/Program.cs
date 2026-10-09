@@ -10,8 +10,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 // ── Database ──────────────────────────────────────────────────────────────────
 var dbPath = builder.Configuration["Database:Path"] ?? "mtg-prices.db";
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite($"Data Source={dbPath}"));
+builder.Services.AddMemoryCache();
+builder.Services.AddSingleton<SqliteTuningInterceptor>();
+builder.Services.AddDbContext<AppDbContext>((sp, options) =>
+    options.UseSqlite($"Data Source={dbPath}")
+           .AddInterceptors(sp.GetRequiredService<SqliteTuningInterceptor>()));
 
 // ── Repositories ─────────────────────────────────────────────────────────────
 builder.Services.AddScoped<ICardRepository, CardRepository>();
@@ -50,6 +53,7 @@ builder.Services.AddHttpClient(DiscordNotificationService.HttpClientName, client
 builder.Services.AddSingleton<SyncState>();
 builder.Services.AddSingleton<PriceSyncBackgroundService>();
 builder.Services.AddHostedService(sp => sp.GetRequiredService<PriceSyncBackgroundService>());
+builder.Services.AddHostedService<DatabaseWarmupService>();
 
 // ── API & Swagger ─────────────────────────────────────────────────────────────
 builder.Services.AddControllers();

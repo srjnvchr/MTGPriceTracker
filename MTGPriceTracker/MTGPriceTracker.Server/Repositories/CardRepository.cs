@@ -26,18 +26,19 @@ public class CardRepository : ICardRepository
 
         if (!string.IsNullOrWhiteSpace(query.Query))
         {
-            var term = query.Query.Trim().ToLower();
-            q = q.Where(c => c.Name.ToLower().Contains(term));
+            // SQLite LIKE is case-insensitive for ASCII, so no per-row lower() is needed.
+            var term = EscapeLike(query.Query.Trim());
+            q = q.Where(c => EF.Functions.Like(c.Name, $"%{term}%", "\\"));
         }
 
         if (!string.IsNullOrWhiteSpace(query.SetCode))
             q = q.Where(c => c.SetCode == query.SetCode);
 
         if (!string.IsNullOrWhiteSpace(query.Rarity))
-            q = q.Where(c => c.Rarity.ToLower() == query.Rarity.ToLower());
+            q = q.Where(c => c.Rarity == query.Rarity.ToLower()); // stored lowercase — keeps the Rarity index usable
 
         if (!string.IsNullOrWhiteSpace(query.Type))
-            q = q.Where(c => c.Type.ToLower().Contains(query.Type.ToLower()));
+            q = q.Where(c => EF.Functions.Like(c.Type, $"%{EscapeLike(query.Type.Trim())}%", "\\"));
 
         if (query.FavoritesOnly == true)
             q = q.Where(c => favoriteSet.Contains(c.Uuid));
@@ -66,6 +67,9 @@ public class CardRepository : ICardRepository
             PageSize = query.PageSize
         };
     }
+
+    private static string EscapeLike(string s) =>
+        s.Replace("\\", "\\\\").Replace("%", "\\%").Replace("_", "\\_");
 
     public async Task<Card?> GetByUuidAsync(string uuid, CancellationToken ct = default)
     {
