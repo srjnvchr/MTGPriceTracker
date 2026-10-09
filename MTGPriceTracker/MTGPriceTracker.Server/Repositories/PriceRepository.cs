@@ -1,5 +1,8 @@
+using System.Globalization;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
+using MTGPriceTracker.Server.BackgroundServices;
 using MTGPriceTracker.Server.Data;
 using MTGPriceTracker.Server.Models;
 using MTGPriceTracker.Server.Repositories.Interfaces;
@@ -8,11 +11,17 @@ namespace MTGPriceTracker.Server.Repositories;
 
 public class PriceRepository : IPriceRepository
 {
-    private readonly AppDbContext _db;
+    private static readonly TimeSpan LatestPriceCacheTtl = TimeSpan.FromMinutes(30);
 
-    public PriceRepository(AppDbContext db)
+    private readonly AppDbContext _db;
+    private readonly IMemoryCache _cache;
+    private readonly SyncState _syncState;
+
+    public PriceRepository(AppDbContext db, IMemoryCache cache, SyncState syncState)
     {
         _db = db;
+        _cache = cache;
+        _syncState = syncState;
     }
 
     public async Task<IEnumerable<PriceSnapshot>> GetHistoryAsync(
@@ -35,44 +44,116 @@ public class PriceRepository : IPriceRepository
 
     public async Task<Dictionary<string, decimal>> GetLatestPricesAsync(string cardUuid, CancellationToken ct = default)
     {
-        // For each vendor+priceType+condition combo, get the most recent price
-        var latestPerVendor = await _db.PriceSnapshots
-            .AsNoTracking()
-            .Where(p => p.CardUuid == cardUuid)
-            .GroupBy(p => new { p.Vendor, p.PriceType, p.Condition })
-            .Select(g => g.OrderByDescending(p => p.Date).First())
-            .ToListAsync(ct);
-
-        return latestPerVendor.ToDictionary(
-            p => p.Condition != null
-                ? $"{p.Vendor}_{p.PriceType}_{p.Condition}"
-                : $"{p.Vendor}_{p.PriceType}",
-            p => p.Price);
+        var map = await GetLatestPricesForCardsAsync(new[] { cardUuid }, ct);
+        return map.TryGetValue(cardUuid, out var prices) ? prices : new Dictionary<string, decimal>();
     }
 
+    /// <summary>
+    /// Latest price per vendor / price type / condition for each card. Prices only change when a
+    /// sync runs, so results are cached per card and versioned by the last sync. While a sync is
+    /// running the cache is bypassed so half-imported data is never kept.
+    /// </summary>
     public async Task<Dictionary<string, Dictionary<string, decimal>>> GetLatestPricesForCardsAsync(
         IEnumerable<string> cardUuids,
         CancellationToken ct = default)
     {
-        var uuidList = cardUuids.ToList();
-
-        var latestPrices = await _db.PriceSnapshots
-            .AsNoTracking()
-            .Where(p => uuidList.Contains(p.CardUuid))
-            .GroupBy(p => new { p.CardUuid, p.Vendor, p.PriceType, p.Condition })
-            .Select(g => g.OrderByDescending(p => p.Date).First())
-            .ToListAsync(ct);
-
+        var uuids = cardUuids.Distinct().ToList();
         var result = new Dictionary<string, Dictionary<string, decimal>>();
-        foreach (var price in latestPrices)
-        {
-            if (!result.ContainsKey(price.CardUuid))
-                result[price.CardUuid] = new Dictionary<string, decimal>();
+        if (uuids.Count == 0) return result;
 
-            var key = price.Condition != null
-                ? $"{price.Vendor}_{price.PriceType}_{price.Condition}"
-                : $"{price.Vendor}_{price.PriceType}";
-            result[price.CardUuid][key] = price.Price;
+        var useCache = !_syncState.IsRunning;
+        var version = _syncState.LastSyncAt?.Ticks ?? 0;
+        var missing = new List<string>();
+
+        foreach (var uuid in uuids)
+        {
+            if (useCache && _cache.TryGetValue(CacheKey(version, uuid), out Dictionary<string, decimal>? hit) && hit is not null)
+            {
+                if (hit.Count > 0) result[uuid] = hit;
+            }
+            else
+            {
+                missing.Add(uuid);
+            }
+        }
+
+        if (missing.Count == 0) return result;
+
+        var fetched = await QueryLatestAsync(missing, ct);
+        foreach (var uuid in missing)
+        {
+            var prices = fetched.TryGetValue(uuid, out var p) ? p : new Dictionary<string, decimal>();
+            if (useCache) _cache.Set(CacheKey(version, uuid), prices, LatestPriceCacheTtl);
+            if (prices.Count > 0) result[uuid] = prices;
+        }
+
+        return result;
+    }
+
+    private static string CacheKey(long version, string uuid) => $"latest-prices:{version}:{uuid}";
+
+    /// <summary>
+    /// Reads only the newest row of each price series. The correlated MAX(Date) is a single seek on
+    /// the (CardUuid, Vendor, PriceType, Condition, Date) unique index, so the full price history of
+    /// a card is never loaded (the old GroupBy/First() query read all of it and took minutes on a
+    /// large database).
+    /// </summary>
+    private async Task<Dictionary<string, Dictionary<string, decimal>>> QueryLatestAsync(
+        List<string> uuids,
+        CancellationToken ct)
+    {
+        var result = new Dictionary<string, Dictionary<string, decimal>>();
+
+        await _db.Database.OpenConnectionAsync(ct);
+        try
+        {
+            var conn = _db.Database.GetDbConnection();
+
+            foreach (var chunk in uuids.Chunk(500))
+            {
+                await using var cmd = conn.CreateCommand();
+
+                var names = new string[chunk.Length];
+                for (var i = 0; i < chunk.Length; i++)
+                {
+                    names[i] = $"@u{i}";
+                    var prm = cmd.CreateParameter();
+                    prm.ParameterName = names[i];
+                    prm.Value = chunk[i];
+                    cmd.Parameters.Add(prm);
+                }
+
+                cmd.CommandText = $@"
+                    SELECT p.CardUuid, p.Vendor, p.PriceType, p.Condition, p.Price
+                    FROM PriceSnapshots p
+                    WHERE p.CardUuid IN ({string.Join(",", names)})
+                      AND p.Date = (SELECT MAX(q.Date)
+                                    FROM PriceSnapshots q
+                                    WHERE q.CardUuid = p.CardUuid
+                                      AND q.Vendor = p.Vendor
+                                      AND q.PriceType = p.PriceType
+                                      AND q.Condition IS p.Condition)";
+
+                await using var reader = await cmd.ExecuteReaderAsync(ct);
+                while (await reader.ReadAsync(ct))
+                {
+                    var uuid = reader.GetString(0);
+                    var vendor = reader.GetString(1);
+                    var priceType = reader.GetString(2);
+                    var condition = reader.IsDBNull(3) ? null : reader.GetString(3);
+                    var price = Convert.ToDecimal(reader.GetValue(4), CultureInfo.InvariantCulture);
+
+                    var key = condition != null ? $"{vendor}_{priceType}_{condition}" : $"{vendor}_{priceType}";
+
+                    if (!result.TryGetValue(uuid, out var prices))
+                        result[uuid] = prices = new Dictionary<string, decimal>();
+                    prices[key] = price;
+                }
+            }
+        }
+        finally
+        {
+            await _db.Database.CloseConnectionAsync();
         }
 
         return result;
