@@ -356,6 +356,12 @@ public class PriceRepository : IPriceRepository
             """CREATE INDEX IF NOT EXISTS "IX_PriceSnapshots_Date" ON "PriceSnapshots" ("Date") """, ct);
     }
 
+    public async Task<int> GetApproximateCountAsync(CancellationToken ct = default)
+    {
+        // MAX(Id) on the integer primary key is a single b-tree lookup, regardless of table size.
+        return await _db.PriceSnapshots.MaxAsync(p => (int?)p.Id, ct) ?? 0;
+    }
+
     public async Task<int> GetTotalCountAsync(CancellationToken ct = default)
     {
         return await _db.PriceSnapshots.CountAsync(ct);

@@ -7,20 +7,17 @@ namespace MTGPriceTracker.Server.Services;
 public class FavoritesService : IFavoritesService
 {
     private readonly IFavoriteRepository _favoriteRepository;
-    private readonly IPriceRepository _priceRepository;
 
-    public FavoritesService(IFavoriteRepository favoriteRepository, IPriceRepository priceRepository)
+    public FavoritesService(IFavoriteRepository favoriteRepository)
     {
         _favoriteRepository = favoriteRepository;
-        _priceRepository = priceRepository;
     }
 
     public async Task<List<CardDto>> GetFavoritesAsync(CancellationToken ct = default)
     {
+        // Like the card list, favorites return card info only. Prices load on the card page.
         var favorites = await _favoriteRepository.GetAllAsync(ct);
         var favoriteList = favorites.ToList();
-        var uuids = favoriteList.Select(f => f.CardUuid).ToList();
-        var latestPricesMap = await _priceRepository.GetLatestPricesForCardsAsync(uuids, ct);
 
         return favoriteList.Select(f => new CardDto
         {
@@ -33,9 +30,8 @@ public class FavoritesService : IFavoritesService
             ManaCost = f.Card.ManaCost,
             ScryfallId = f.Card.ScryfallId,
             IsFavorite = true,
-            LatestPrices = latestPricesMap.TryGetValue(f.CardUuid, out var prices)
-                ? prices
-                : new Dictionary<string, decimal>()
+            HasFoil = f.Card.HasFoil,
+            HasNonFoil = f.Card.HasNonFoil
         }).ToList();
     }
 

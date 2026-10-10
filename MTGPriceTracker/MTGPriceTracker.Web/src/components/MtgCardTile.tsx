@@ -2,7 +2,7 @@ import { memo, type KeyboardEvent, type MouseEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Heart } from '@phosphor-icons/react'
 import type { CardDto } from '../api/types'
-import { currencySymbol, rarityClass, tilePrices } from '../lib/format'
+import { rarityClass } from '../lib/format'
 import { cx } from './ui'
 import TiltCard from './TiltCard'
 
@@ -17,7 +17,6 @@ interface Props {
 function MtgCardTile({ card, onToggleFavorite }: Props) {
   const navigate = useNavigate()
   const open = () => navigate(`/cards/${card.uuid}`)
-  const prices = tilePrices(card)
 
   const onKeyDown = (e: KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {
@@ -60,23 +59,10 @@ function MtgCardTile({ card, onToggleFavorite }: Props) {
 
       <div className="mt-3 min-w-0 px-0.5" style={{ height: TILE_CAPTION_HEIGHT - 12 }}>
         <p className="truncate text-[13px] font-medium leading-tight">{card.name}</p>
-        {prices.length > 0 ? (
-          <p className="num mt-1.5 flex gap-3 text-xs text-muted">
-            {prices.map((p) => (
-              <span key={p.vendor} className="whitespace-nowrap">
-                <span className="text-muted/70">{p.label}</span>{' '}
-                <span className="text-fg">
-                  {currencySymbol(p.currency)}
-                  {p.value.toFixed(2)}
-                </span>
-              </span>
-            ))}
-          </p>
-        ) : (
-          <p className="mt-1.5 text-xs text-muted/70">
-            <span className={rarityClass(card.rarity)}>{card.rarity}</span>, no prices yet
-          </p>
-        )}
+        <p className="mt-1.5 flex items-center gap-2 text-xs text-muted">
+          <span className="num">{card.setCode}</span>
+          <span className={cx('capitalize', rarityClass(card.rarity))}>{card.rarity}</span>
+        </p>
       </div>
     </div>
   )

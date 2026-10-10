@@ -35,35 +35,6 @@ export const rarityClass = (rarity: string) => {
   }
 }
 
-export const VENDOR_SHORT: Record<string, string> = {
-  tcgplayer: 'TCG',
-  cardkingdom: 'CK',
-  cardmarket: 'CM',
-  goodgames: 'GG',
-}
-const VENDOR_CURRENCY: Record<string, string> = { cardmarket: 'EUR', goodgames: 'AUD' }
-
-/** Picks the headline retail price for a vendor from a card's LatestPrices map. */
-export function vendorPrice(card: Pick<CardDto, 'latestPrices' | 'hasNonFoil'>, vendor: string) {
-  const keys = Object.keys(card.latestPrices).filter((k) => k.startsWith(`${vendor}_`) && k.includes('retail'))
-  if (keys.length === 0) return null
-  const wantFoil = !card.hasNonFoil
-  const pool = keys.filter((k) => k.includes('foil') === wantFoil)
-  const list = pool.length ? pool : keys
-  const key = list.find((k) => k.endsWith('_NM')) ?? list[0]
-  const cur = VENDOR_CURRENCY[vendor] ?? 'USD'
-  return { vendor, label: VENDOR_SHORT[vendor] ?? vendor.slice(0, 3).toUpperCase(), value: card.latestPrices[key], currency: cur }
-}
-
-/** Up to two prices for the tile caption, preferring TCGPlayer and Good Games. */
-export function tilePrices(card: Pick<CardDto, 'latestPrices' | 'hasNonFoil'>) {
-  const order = ['tcgplayer', 'goodgames', 'cardkingdom', 'cardmarket']
-  return order
-    .map((v) => vendorPrice(card, v))
-    .filter((p): p is NonNullable<typeof p> => p !== null)
-    .slice(0, 2)
-}
-
 export const formatDateTime = (iso: string) =>
   new Date(iso).toLocaleString('en-AU', {
     day: '2-digit',

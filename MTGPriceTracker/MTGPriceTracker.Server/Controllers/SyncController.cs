@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
 using MTGPriceTracker.Server.BackgroundServices;
 using MTGPriceTracker.Server.Repositories.Interfaces;
 using MTGPriceTracker.Server.Services.Interfaces;
@@ -17,7 +16,6 @@ public class SyncController : ControllerBase
     private readonly IPriceRepository _priceRepository;
     private readonly SyncState _syncState;
     private readonly ILogger<SyncController> _logger;
-    private readonly IMemoryCache _cache;
 
     public SyncController(
         PriceSyncBackgroundService syncService,
@@ -25,10 +23,8 @@ public class SyncController : ControllerBase
         ICardRepository cardRepository,
         IPriceRepository priceRepository,
         SyncState syncState,
-        ILogger<SyncController> logger,
-        IMemoryCache cache)
+        ILogger<SyncController> logger)
     {
-        _cache = cache;
         _syncService = syncService;
         _scopeFactory = scopeFactory;
         _cardRepository = cardRepository;
@@ -42,26 +38,17 @@ public class SyncController : ControllerBase
     [ProducesResponseType(typeof(SyncStatusDto), StatusCodes.Status200OK)]
     public async Task<ActionResult<SyncStatusDto>> GetStatus(CancellationToken ct = default)
     {
-        // COUNT(*) over millions of price rows is slow, and this endpoint is hit on every Home
-        // load and polled during syncs. The key changes when a sync starts or finishes, so the
-        // totals are recomputed once per sync rather than on every request.
-        var totals = await _cache.GetOrCreateAsync(
-            $"sync-totals:{_syncState.LastSyncAt?.Ticks}:{_syncState.IsRunning}",
-            async entry =>
-            {
-                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30);
-                return (Cards: await _cardRepository.GetTotalCountAsync(ct),
-                        Prices: await _priceRepository.GetTotalCountAsync(ct));
-            });
-
+        // COUNT(*) over the price table scans the whole 16 GB file, and this endpoint is hit on every
+        // Home load and polled during syncs. The highest row id is an instant lookup and is a close
+        // estimate of the row count (it only drifts above the true count after rows are deleted).
         var status = new SyncStatusDto
         {
             IsRunning = _syncState.IsRunning,
             LastSyncAt = _syncState.LastSyncAt,
             LastSyncResult = _syncState.LastSyncResult,
             CurrentOperation = _syncState.CurrentOperation,
-            TotalCards = totals.Cards,
-            TotalPriceSnapshots = totals.Prices
+            TotalCards = await _cardRepository.GetTotalCountAsync(ct),
+            TotalPriceSnapshots = await _priceRepository.GetApproximateCountAsync(ct)
         };
         return Ok(status);
     }

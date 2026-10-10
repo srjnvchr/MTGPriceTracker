@@ -13,6 +13,12 @@ public interface IPriceRepository
     Task DropPriceSnapshotIndexesAsync(CancellationToken ct = default);
     Task RebuildPriceSnapshotIndexesAsync(CancellationToken ct = default);
     Task<int> GetTotalCountAsync(CancellationToken ct = default);
+
+    /// <summary>
+    /// Instant estimate of the row count (highest row id). Unlike <see cref="GetTotalCountAsync"/> it never
+    /// scans the table, but it overstates the count if rows have been deleted.
+    /// </summary>
+    Task<int> GetApproximateCountAsync(CancellationToken ct = default);
     Task<DateTime?> GetLastSyncDateAsync(string vendor, CancellationToken ct = default);
     Task<int> GetDistinctPriceDatesCountAsync(CancellationToken ct = default);
 

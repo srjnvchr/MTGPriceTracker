@@ -25,8 +25,8 @@ public class CardService : ICardService
         var favoriteUuids = await _favoriteRepository.GetAllUuidsAsync(ct);
         var pagedCards = await _cardRepository.SearchAsync(query, favoriteUuids, ct);
 
-        var cardUuids = pagedCards.Items.Select(c => c.Uuid).ToList();
-        var latestPricesMap = await _priceRepository.GetLatestPricesForCardsAsync(cardUuids, ct);
+        // Prices are deliberately not loaded for list results: they live in the huge PriceSnapshots
+        // table, and the list only needs card info. Prices are fetched when a card is opened.
         var favoriteSet = favoriteUuids.ToHashSet();
 
         var dtos = pagedCards.Items.Select(card => new CardDto
@@ -41,8 +41,7 @@ public class CardService : ICardService
             ScryfallId = card.ScryfallId,
             IsFavorite = favoriteSet.Contains(card.Uuid),
             HasFoil = card.HasFoil,
-            HasNonFoil = card.HasNonFoil,
-            LatestPrices = latestPricesMap.TryGetValue(card.Uuid, out var prices) ? prices : new Dictionary<string, decimal>()
+            HasNonFoil = card.HasNonFoil
         }).ToList();
 
         return new PagedResult<CardDto>
